@@ -1,563 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chasse aux ensembles — ℕ ℤ 𝔻 ℚ ℝ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=JetBrains+Mono:wght@500;700&family=Karla:wght@400;500;700&display=swap');
+  :root{--paper:#f4f0e6;--ink:#20303d;--line:#c9c0ab;--blue:#2f5d8a;--coral:#c85a3a;--green:#3f7a53;--gold:#d9a441;}
+  *{box-sizing:border-box;}body{background:#paper;background-color:var(--paper);color:var(--ink);font-family:'Karla',sans-serif;margin:0;padding:20px 16px 60px;display:flex;justify-content:center;}
+  .sheet{width:100%;max-width:600px;position:relative;padding-left:20px;}
+  h1{font-family:'Fraunces',serif;font-size:32px;margin:4px 0;}
+  .chain{font-family:'JetBrains Mono',monospace;color:var(--blue);margin-bottom:20px;}
+  .card{background:#fffdf8;border:1px solid #d9d0ba;border-radius:4px;padding:20px;box-shadow:2px 4px 0 #d9d0ba;margin-bottom:15px;}
+  .qmeta{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8272;text-transform:uppercase;margin-bottom:5px;}
+  .question{font-family:'Fraunces',serif;font-size:20px;line-height:1.3;margin-bottom:15px;}.highlight{color:var(--blue);font-weight:700;}
+  .options{display:grid;gap:10px;}.opt{text-align:left;border:1.5px solid #cfc6b0;background:#fff;padding:12px;border-radius:4px;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:10px;}
+  .opt .sym{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--blue);}
+  .opt.correct{border-color:var(--green);background:#eaf3ec;}.opt.correct::after{content:"✓";margin-left:auto;color:var(--green);font-weight:700;}
+  .opt.wrong{border-color:var(--coral);background:#faece7;}.opt.wrong::after{content:"✗";margin-left:auto;color:var(--coral);font-weight:700;}
+  .opt.dim{opacity:.4;}.feedback{margin-top:12px;font-size:14px;padding:10px;border-radius:4px;display:none;}
+  .feedback.show{display:block;}.feedback.good{background:#eaf3ec;color:#2b5a3b;}.feedback.bad{background:#faece7;color:#8a3d24;}
+  .nextbtn,.restart{margin-top:15px;display:none;font-family:'JetBrains Mono',monospace;font-weight:700;background:var(--ink);color:#fff;border:none;padding:12px 20px;border-radius:4px;cursor:pointer;}
+  .nextbtn.show,.result.show{display:block;}.restart{background:var(--coral);display:block;margin:15px auto 0;}
+  .modes{display:grid;gap:10px;}.modebtn{text-align:left;border:1.5px solid #cfc6b0;background:#fff;padding:15px;border-radius:4px;cursor:pointer;}
+  .modebtn.defi{border-color:#dcb87a;background:#fdf8ec;}.timerbar{height:4px;background:#e8e0cc;margin-bottom:15px;overflow:hidden;}
+  .timerfill{height:100%;width:100%;background:var(--gold);transition:width .1s linear;}.timerfill.low{background:var(--coral);}
+  .result{display:none;text-align:center;}.result .big{font-family:'Fraunces',serif;font-size:48px;color:var(--blue);margin:10px 0;}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <h1>La chasse aux ensembles</h1>
+    <div class="chain">ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</div>
+  </header>
+  <main>
+    <div class="card" id="startCard">
+      <div class="qmeta">Mode de jeu</div>
+      <div class="modes">
+        <button class="modebtn" id="modeTrain"><strong>Entraînement</strong><br><small>12 questions, sans stress, à ton rythme.</small></button>
+        <button class="modebtn defi" id="modeChallenge"><strong>🔥 Défi Chrono</strong><br><small>10 questions intenses, 15 secondes par question !</small></button>
+      </div>
+    </div>
+    <div class="card" id="quizCard" style="display:none;">
+      <div class="timerbar" id="timerWrap" style="display:none;"><div class="timerfill" id="timerFill"></div></div>
+      <div class="qmeta" id="qmeta">Question</div>
+      <div class="question" id="qText"></div>
+      <div class="options" id="optsWrap"></div>
+      <div class="feedback" id="fb"></div>
+      <button class="nextbtn" id="nextBtn">Suivant →</button>
+    </div>
+    <div class="card result" id="resultCard">
+      <div class="qmeta">Fin de la partie</div>
+      <div class="big" id="finalScore">0 / 0</div>
+      <p id="finalMsg"></p>
+      <button class="restart" id="restartBtn">Rejouer</button>
+    </div>
+  </main>
+</div>
 <script>
-const SETS = ["ℕ","ℤ","𝔻","ℚ","ℝ"];
-const SET_NAMES = {
-  "ℕ":"entiers naturels",
-  "ℤ":"entiers relatifs",
-  "𝔻":"décimaux",
-  "ℚ":"rationnels",
-  "ℝ":"réels"
-};
-
-const QUESTIONS = [
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−15/3</span> ?", correct: "ℤ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "−15/3 = −5. C'est un entier négatif : il n'est pas dans ℕ, donc le plus petit ensemble est ℤ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/20</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "7/20 = 0,35. L'écriture décimale s'arrête après 2 chiffres : c'est donc un nombre décimal (𝔻)." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√16</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "√16 = 4, un entier positif : le plus petit ensemble est ℕ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/3</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ","ℤ"], exp: "1/3 = 0,3333… ne s'arrête jamais (période infinie), donc ce n'est PAS un décimal. C'est un rationnel (ℚ)." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2</span> ?", correct: "ℝ", opts: ["ℚ","ℝ","𝔻","ℤ"], exp: "√2 ≈ 1,41421356… a des décimales infinies et non périodiques : c'est un irrationnel, donc seulement dans ℝ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−0,2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−0,2 = −2/10¹. Un seul chiffre après la virgule : c'est un décimal (𝔻)." },
-  { q: "Vrai ou faux : <span class='highlight'>tout nombre décimal est aussi un nombre rationnel</span>.", correct: "Vrai", opts: ["Vrai","Faux"], exp: "Vrai ! ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ : tout décimal peut s'écrire comme une fraction a/b, donc il est aussi rationnel." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/11</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ"], exp: "7/11 = 0,636363… (le motif « 63 » se répète à l'infini). C'est une écriture infinie périodique → rationnel (ℚ), mais pas décimal." },
-  { q: "Vrai ou faux : <span class='highlight'>π appartient à ℚ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! π ≈ 3,14159265… a des décimales infinies et non périodiques. π est irrationnel : il n'appartient qu'à ℝ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−5</span> ?", correct: "ℤ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "−5 est un entier négatif : il n'est pas dans ℕ. Le plus petit ensemble est ℤ." },
-  { q: "Vrai ou faux : <span class='highlight'>−10/2 appartient à ℕ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! −10/2 = −5, qui est négatif. ℕ ne contient que les entiers positifs. −5 appartient à ℤ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>3/4</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "3/4 = 0,75, écriture décimale finie : c'est un nombre décimal (𝔻)." }
+const NAMES={"ℕ":"entiers naturels","ℤ":"entiers relatifs","𝔻":"décimaux","ℚ":"rationnels","ℝ":"réels"};
+const Q_TRAIN=[
+  {q:"Plus petit ensemble pour <span class='highlight'>−15/3</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻","ℚ"],e:"−15/3 = −5 (entier négatif)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>7/20</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ","ℝ"],e:"7/20 = 0,35 (écriture finie)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>√16</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℚ"],e:"√16 = 4 (entier positif)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>1/3</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"1/3 = 0,333... (infini périodique)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>√2</span> ?",c:"ℝ",o:["ℚ","ℝ","𝔻"],e:"√2 est irrationnel (décimales infinies sans logique)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>−0,2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"−0,2 a un nombre fini de décimales."},
+  {q:"Vrai ou Faux : <span class='highlight'>Tout décimal est un rationnel</span>.",c:"Vrai",o:["Vrai","Faux"],e:"Oui, car 𝔻 est inclus dans ℚ."},
+  {q:"Plus petit ensemble pour <span class='highlight'>7/11</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"7/11 = 0,6363... (infini périodique)."},
+  {q:"Vrai ou Faux : <span class='highlight'>π appartient à ℚ</span>.",c:"Faux",o:["Vrai","Faux"],e:"Faux, π est irrationnel, il n'est que dans ℝ."},
+  {q:"Plus petit ensemble pour <span class='highlight'>−5</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻"],e:"−5 est un entier négatif."},
+  {q:"Vrai ou Faux : <span class='highlight'>−10/2 appartient à ℕ</span>.",c:"Faux",o:["Vrai","Faux"],e:"−10/2 = −5 (négatif, donc pas dans ℕ)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>3/4</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"3/4 = 0,75 (fini)."}
 ];
-
-const CHALLENGE_QUESTIONS = [
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2 × √8</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℝ"], exp: "√2 × √8 = √16 = 4. Deux irrationnels peuvent se combiner en un entier ! Plus petit ensemble : ℕ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−3 + 7/2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−3 + 7/2 = −6/2 + 7/2 = 1/2 = 0,5. Écriture décimale finie → 𝔻." },
-  { q: "Vrai ou faux : <span class='highlight'>π − π appartient à ℕ</span>.", correct: "Vrai", opts: ["Vrai","Faux"], exp: "π − π = 0. Même si π est irrationnel, la différence donne 0, qui est dans ℕ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/6 + 1/3</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "1/6 + 1/3 = 1/6 + 2/6 = 3/6 = 1/2 = 0,5. Écriture finie → 𝔻." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√(9/4)</span> ?", correct: "𝔻", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "√(9/4) = 3/2 = 1,5. Écriture décimale finie → 𝔻." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>22/7</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ"], exp: "22/7 = 3,142857... : le motif se répète à l'infini. Écriture infinie périodique → rationnel (ℚ)." },
-  { q: "Vrai ou faux : <span class='highlight'>la somme de deux nombres irrationnels est toujours irrationnelle</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! Contre-exemple : √2 + (−√2) = 0, qui est rationnel." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>(√5)² − 4</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "(√5)² = 5, donc 5 − 4 = 1. C'est un entier naturel : ℕ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−7/4 × 2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−7/4 × 2 = −14/4 = −7/2 = −3,5. Écriture décimale finie → 𝔻." },
-  { q: "Vrai ou faux : <span class='highlight'>√3 + √3 appartient à ℚ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! √3 + √3 = 2√3. Multiplier un irrationnel par un rationnel non nul reste irrationnel (ℝ)." }
+const Q_DEFI=[
+  {q:"Plus petit ensemble pour <span class='highlight'>√2 × √8</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℝ"],e:"√2 × √8 = √16 = 4 !"},
+  {q:"Plus petit ensemble pour <span class='highlight'>−3 + 7/2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"−3 + 3,5 = 0,5."},
+  {q:"Vrai ou Faux : <span class='highlight'>π − π appartient à ℕ</span>.",c:"Vrai",o:["Vrai","Faux"],e:"π − π = 0, et 0 est dans ℕ."},
+  {q:"Plus petit ensemble pour <span class='highlight'>1/6 + 1/3</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"1/6 + 2/6 = 3/6 = 0,5."},
+  {q:"Plus petit ensemble pour <span class='highlight'>√(9/4)</span> ?",c:"𝔻",o:["ℕ","ℤ","𝔻","ℚ"],e:"√(9/4) = 3/2 = 1,5."},
+  {q:"Plus petit ensemble pour <span class='highlight'>22/7</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"22/7 donne des décimales infinies périodiques."},
+  {q:"La somme de deux irrationnels est toujours irrationnelle ?",c:"Faux",o:["Vrai","Faux"],e:"√2 + (−√2) = 0 (rationnel)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>(√5)² − 4</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻"],e:"5 − 4 = 1."},
+  {q:"Plus petit ensemble pour <span class='highlight'>−7/4 × 2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"−14/4 = −3,5."},
+  {q:"Vrai ou Faux : <span class='highlight'>√3 + √3 appartient à ℚ</span>.",c:"Faux",o:["Vrai","Faux"],e:"√3 + √3 = 2√3 (irrationnel)."}
 ];
-
-let mode = 'train';
-let ACTIVE = QUESTIONS;
-let current = 0;
-let score = 0;
-let streak = 0;
-let bestStreak = 0;
-let answered = false;
-let history = [];
-let timerInterval = null;
-let timeLeft = 15;
-const TIME_LIMIT = 15;
-
-const questionText = document.getElementById('questionText');
-const optionsWrap = document.getElementById('optionsWrap');
-const feedback = document.getElementById('feedback');
-const nextBtn = document.getElementById('nextBtn');
-const qmeta = document.getElementById('qmeta');
-const scoreText = document.getElementById('scoreText');
-const streakText = document.getElementById('streakText');
-const posMarker = document.getElementById('posMarker');
-const ticksWrap = document.getElementById('ticks');
-const quizCard = document.getElementById('quizCard');
-const resultCard = document.getElementById('resultCard');
-const startCard = document.getElementById('startCard');
-const scorebar = document.getElementById('scorebar');
-const numberlineWrap = document.getElementById('numberline');
-const timerbarWrap = document.getElementById('timerbarWrap');
-const timerFill = document.getElementById('timerFill');
-
-document.getElementById('modeTrain').addEventListener('click', () => startQuiz('train'));
-document.getElementById('modeChallenge').addEventListener('click', () => startQuiz('challenge'));
-
-function startQuiz(chosenMode){
-  mode = chosenMode;
-  ACTIVE = mode === 'challenge' ? CHALLENGE_QUESTIONS : QUESTIONS;
-  current = 0; score = 0; streak = 0; bestStreak = 0; history = [];
-  startCard.style.display = 'none';
-  resultCard.style.display = 'none';
-  scorebar.style.display = 'flex';
-  numberlineWrap.style.display = 'block';
-  quizCard.style.display = 'block';
-  timerbarWrap.style.display = mode === 'challenge' ? 'block' : 'none';
-  buildTicks();
-  renderQuestion();
+let mode='train',ACTIVE=Q_TRAIN,current=0,score=0,answered=false,timer=null,timeLeft=15;
+const sCard=document.getElementById('startCard'),qCard=document.getElementById('quizCard'),rCard=document.getElementById('resultCard');
+document.getElementById('modeTrain').addEventListener('click',()=>start( 'train'));
+document.getElementById('modeChallenge').addEventListener('click',()=>start('challenge'));
+function start(m){
+  mode=m;ACTIVE=mode==='challenge'?Q_DEFI:Q_TRAIN;
+  current=0;score=0;sCard.style.display='none';rCard.style.display='none';qCard.style.display='block';
+  document.getElementById('timerWrap').style.display=mode==='challenge'?'block':'none';
+  showQ();
 }
-
-function buildTicks(){
-  ticksWrap.innerHTML = '';
-  const n = ACTIVE.length;
-  for(let i=0;i<=n;i++){
-    const t = document.createElement('div');
-    t.className='tick';
-    t.style.left = (i/n*100)+'%';
-    ticksWrap.appendChild(t);
-  }
-}
-
-function updatePosition(){
-  const n = ACTIVE.length;
-  const pct = current/n*100;
-  posMarker.style.left = pct+'%';
-  posMarker.textContent = current;
-}
-
-function shuffle(arr){
-  const a = [...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-
-function renderQuestion(){
-  answered = false;
-  const item = ACTIVE[current];
-  const badge = mode === 'challenge' ? '<span class="badge-defi">Défi</span>' : '';
-  qmeta.innerHTML = `Question ${current+1} / ${ACTIVE.length}${badge}`;
-  questionText.innerHTML = item.q;
-  feedback.className = 'feedback';
-  feedback.textContent = '';
-  nextBtn.classList.remove('show');
-  optionsWrap.innerHTML = '';
-
-  const opts = shuffle(item.opts);
-  opts.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'opt';
-    const isSetSymbol = SETS.includes(opt);
-    btn.innerHTML = isSetSymbol
-      ? `<span class="sym">${opt}</span><span>${SET_NAMES[opt]}</span>`
-      : `<span>${opt}</span>`;
-    btn.addEventListener('click', () => selectAnswer(btn, opt, item));
-    optionsWrap.appendChild(btn);
+function showQ(){
+  answered=false;clearInterval(timer);
+  const item=ACTIVE[current];
+  document.getElementById('qmeta').textContent=`Question ${current+1} / ${ACTIVE.length} | Score: ${score}`;
+  document.getElementById('qText').innerHTML=item.q;
+  document.getElementById('fb').className='feedback';
+  document.getElementById('nextBtn').classList.remove('show');
+  const w=document.getElementById('optsWrap');w.innerHTML='';
+  [...item.o].sort(()=>Math.random()-0.5).forEach(o=>{
+    const b=document.createElement('button');b.className='opt';
+    b.innerHTML=NAMES[o]?`<span class="sym">${o}</span> <small>${NAMES[o]}</small>`:`<span>${o}</span>`;
+    b.addEventListener('click',()=>clickOpt(b,o,item));w.appendChild(b);
   });
-
-  updatePosition();
-  scoreText.textContent = `Score : ${score} / ${current}`;
-  streakText.textContent = streak >= 2 ? `🔥 série de ${streak}` : '';
-
-  if(mode === 'challenge'){
-    startTimer(item);
-  }
+  if(mode==='challenge') launchTimer(item);
 }
-
-function startTimer(item){
-  clearInterval(timerInterval);
-  timeLeft = TIME_LIMIT;
-  timerFill.style.width = '100%';
-  timerFill.classList.remove('low');
-  const stepMs = 100;
-  timerInterval = setInterval(() => {
-    timeLeft -= stepMs/1000;
-    const pct = Math.max(0, (timeLeft/TIME_LIMIT)*100);
-    timerFill.style.width = pct + '%';
-    if(pct < 30) timerFill.classList.add('low');
-    if(timeLeft <= 0){
-      clearInterval(timerInterval);
-      if(!answered){
-        timeExpired(item);
-      }
-    }
-  }, stepMs);
+function launchTimer(item){
+  timeLeft=15;const f=document.getElementById('timerFill');f.style.width='100%';f.classList.remove('low');
+  timer=setInterval(()=>{
+    timeLeft-=0.1;const p=Math.max(0,(timeLeft/15)*100);f.style.width=p+'%';
+    if(p<30)f.classList.add('low');
+    if(timeLeft<=0){clearInterval(timer);if(!answered)endTimer(item);}
+  },100);
 }
-
-function timeExpired(item){
-  answered = true;
-  streak = 0;
-  const allBtns = optionsWrap.querySelectorAll('.opt');
-  allBtns.forEach(b => {
-    b.classList.add('locked','dim');
-    if(b.textContent.includes(item.correct) || (b.querySelector('.sym') && b.querySelector('.sym').textContent === item.correct)){
-      b.classList.remove('dim');
-      b.classList.add('correct');
-    }
+function endTimer(item){
+  answered=true;
+  document.querySelectorAll('.opt').forEach(b=>{
+    b.classList.add('dim');
+    if(b.textContent.includes(item.c)) b.className='opt correct';
   });
-  feedback.className = 'feedback show bad';
-  feedback.textContent = '⏱ Temps écoulé ! ' + item.exp;
-  history.push({q:item.q, correct:false, set:item.correct});
-  scoreText.textContent = `Score : ${score} / ${current+1}`;
-  nextBtn.classList.add('show');
+  document.getElementById('fb').className='feedback show bad';
+  document.getElementById('fb').textContent='⏱ Temps écoulé ! '+item.e;
+  document.getElementById('nextBtn').classList.add('show');
 }
-
-function selectAnswer(btn, opt, item){
-  if(answered) return;
-  answered = true;
-  clearInterval(timerInterval);
-  const isCorrect = opt === item.correct;
-  const allBtns = optionsWrap.querySelectorAll('.opt');
-
-  allBtns.forEach(b => {
-    b.classList.add('locked');
-    if(b !== btn) b.classList.add('dim');
-  });
-
-  if(isCorrect){
-    btn.classList.add('correct');
-    score++;
-    streak++;
-    bestStreak = Math.max(bestStreak, streak);
-    let bonusNote = '';
-    if(mode === 'challenge' && timeLeft > TIME_LIMIT*0.6){
-      bonusNote = ' <span class="bonus">⚡ rapide !</span>';
-    }
-    feedback.className = 'feedback show good';
-    feedback.innerHTML = '✓ Exact ! ' + item.exp + bonusNote;
-  } else {
-    btn.classList.add('wrong');
-    streak = 0;
-    allBtns.forEach(b => {
-      if(b.textContent.includes(item.correct) || (b.querySelector('.sym') && b.querySelector('.sym').textContent === item.correct)){
-        b.classList.remove('dim');
-        b.classList.add('correct');
-      }
-    });
-    feedback.className = 'feedback show bad';
-    feedback.textContent = '✗ Pas tout à fait. ' + item.exp;
+function clickOpt(btn,o,item){
+  if(answered)return;answered=true;clearInterval(timer);
+  const ok=o===item.c;
+  document.querySelectorAll('.opt').forEach(b=>b.classList.add('dim'));
+  if(ok){btn.className='opt correct';score++;document.getElementById('fb').className='feedback show good';document.getElementById('fb').textContent='✓ Correct ! '+item.e;}
+  else{
+    btn.className='opt wrong';
+    document.querySelectorAll('.opt').forEach(b=>{if(b.textContent.includes(item.c)) b.className='opt correct';});
+    document.getElementById('fb').className='feedback show bad';document.getElementById('fb').textContent='✗ Faux. '+item.e;
   }
-
-  history.push({q: item.q, correct: isCorrect, set: item.correct});
-  scoreText.textContent = `Score : ${score} / ${current+1}`;
-  streakText.textContent = streak >= 2 ? `🔥 série de ${streak}` : '';
-  nextBtn.classList.add('show');
+  document.getElementById('nextBtn').classList.add('show');
 }
-
-nextBtn.addEventListener('click', () => {
-  current++;
-  if(current >= ACTIVE.length){
-    showResult();
-  } else {
-    renderQuestion();
-  }
+document.getElementById('nextBtn').addEventListener('click',()=>{
+  current++;if(current>=ACTIVE.length){qCard.style.display='none';rCard.classList.add('show');document.getElementById('finalScore').textContent=`${score} / ${ACTIVE.length}`;document.getElementById('finalMsg').textContent=score===ACTIVE.length?'Parfait ! Tu maîtrises les ensembles.':'Bien tenté ! Recommence pour t\'améliorer.';}
+  else showQ();
 });
-
-function showResult(){
-  clearInterval(timerInterval);
-  quizCard.style.display = 'none';
-  resultCard.style.display = 'block';
-  posMarker.style.left = '100%';
-  posMarker.textContent = ACTIVE.length;
-
-  document.getElementById('finalScore').textContent = `${score} / ${ACTIVE.length}`;
-  const pct = score/ACTIVE.length;
-  let msg = '';
-  if(mode === 'challenge'){
-    if(pct === 1) msg = "Sans-faute en mode Défi ! Les pièges ne t'ont pas eu.";
-    else if(pct >= 0.7) msg = "Beau score en Défi ! Quelques pièges t'ont échappé, retente pour le sans-faute.";
-    else msg = "Le mode Défi est corsé exprès. Repasse en Entraînement pour revoir les bases, puis reviens.";
-  } else {
-    if(pct === 1) msg = "Parfait ! ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ n'a plus aucun secret pour toi.";
-    else if(pct >= 0.75) msg = "Très solide ! Encore un petit tour pour viser le sans-faute.";
-    else if(pct >= 0.5) msg = "Pas mal ! Revois le piège du 1/3 et les décimaux à écriture infinie.";
-    else msg = "Relis ton cours sur la méthode de simplification, puis retente ta chance.";
-  }
-  document.getElementById('finalMsg').textContent = msg + (bestStreak>=4 ? ` (meilleure série : ${bestStreak} 🔥)` : '');
-
-  const counts = {};
-  history.forEach(h => {
-    counts[h.set] = counts[h.set] || {correct:0,total:0};
-    counts[h.set].total++;
-    if(h.correct) counts[h.set].correct++;
-  });
-  const breakdown = document.getElementById('breakdown');
-  breakdown.innerHTML = '<div class="qmeta" style="margin-bottom:8px;">Détail par ensemble</div>';
-  Object.keys(counts).sort().forEach(set => {
-    const row = document.createElement('div');
-    row.className = 'breakdown-row';
-    row.innerHTML = `<span class="set">${set} — ${SET_NAMES[set]}</span><span>${counts[set].correct}/${counts[set].total}</span>`;
-    breakdown.appendChild(row);
-  });
-}
-
-document.getElementById('restartBtn').addEventListener('click', () => {
-  clearInterval(timerInterval);
-  resultCard.style.display = 'none';
-  scorebar.style.display = 'none';
-  numberlineWrap.style.display = 'none';
-  quizCard.style.display = 'none';
-  startCard.style.display = 'block';
-});
+document.getElementById('restartBtn').addEventListener('click',()=>{rCard.classList.remove('show');sCard.style.display='block';});
 </script>
-
-</body>
-</html> <script>
-const SETS = ["ℕ","ℤ","𝔻","ℚ","ℝ"];
-const SET_NAMES = {
-  "ℕ":"entiers naturels",
-  "ℤ":"entiers relatifs",
-  "𝔻":"décimaux",
-  "ℚ":"rationnels",
-  "ℝ":"réels"
-};
-
-const QUESTIONS = [
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−15/3</span> ?", correct: "ℤ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "−15/3 = −5. C'est un entier négatif : il n'est pas dans ℕ, donc le plus petit ensemble est ℤ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/20</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "7/20 = 0,35. L'écriture décimale s'arrête après 2 chiffres : c'est donc un nombre décimal (𝔻)." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√16</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "√16 = 4, un entier positif : le plus petit ensemble est ℕ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/3</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ","ℤ"], exp: "1/3 = 0,3333… ne s'arrête jamais (période infinie), donc ce n'est PAS un décimal. C'est un rationnel (ℚ)." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2</span> ?", correct: "ℝ", opts: ["ℚ","ℝ","𝔻","ℤ"], exp: "√2 ≈ 1,41421356… a des décimales infinies et non périodiques : c'est un irrationnel, donc seulement dans ℝ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−0,2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−0,2 = −2/10¹. Un seul chiffre après la virgule : c'est un décimal (𝔻)." },
-  { q: "Vrai ou faux : <span class='highlight'>tout nombre décimal est aussi un nombre rationnel</span>.", correct: "Vrai", opts: ["Vrai","Faux"], exp: "Vrai ! ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ : tout décimal peut s'écrire comme une fraction a/b, donc il est aussi rationnel." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/11</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ"], exp: "7/11 = 0,636363… (le motif « 63 » se répète à l'infini). C'est une écriture infinie périodique → rationnel (ℚ), mais pas décimal." },
-  { q: "Vrai ou faux : <span class='highlight'>π appartient à ℚ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! π ≈ 3,14159265… a des décimales infinies et non périodiques. π est irrationnel : il n'appartient qu'à ℝ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−5</span> ?", correct: "ℤ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "−5 est un entier négatif : il n'est pas dans ℕ. Le plus petit ensemble est ℤ." },
-  { q: "Vrai ou faux : <span class='highlight'>−10/2 appartient à ℕ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! −10/2 = −5, qui est négatif. ℕ ne contient que les entiers positifs. −5 appartient à ℤ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>3/4</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "3/4 = 0,75, écriture décimale finie : c'est un nombre décimal (𝔻)." }
-];
-
-const CHALLENGE_QUESTIONS = [
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2 × √8</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℝ"], exp: "√2 × √8 = √16 = 4. Deux irrationnels peuvent se combiner en un entier ! Plus petit ensemble : ℕ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−3 + 7/2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−3 + 7/2 = −6/2 + 7/2 = 1/2 = 0,5. Écriture décimale finie → 𝔻." },
-  { q: "Vrai ou faux : <span class='highlight'>π − π appartient à ℕ</span>.", correct: "Vrai", opts: ["Vrai","Faux"], exp: "π − π = 0. Même si π est irrationnel, la différence donne 0, qui est dans ℕ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/6 + 1/3</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "1/6 + 1/3 = 1/6 + 2/6 = 3/6 = 1/2 = 0,5. Écriture finie → 𝔻." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√(9/4)</span> ?", correct: "𝔻", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "√(9/4) = 3/2 = 1,5. Écriture décimale finie → 𝔻." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>22/7</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ"], exp: "22/7 = 3,142857... : le motif se répète à l'infini. Écriture infinie périodique → rationnel (ℚ)." },
-  { q: "Vrai ou faux : <span class='highlight'>la somme de deux nombres irrationnels est toujours irrationnelle</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! Contre-exemple : √2 + (−√2) = 0, qui est rationnel." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>(√5)² − 4</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "(√5)² = 5, donc 5 − 4 = 1. C'est un entier naturel : ℕ." },
-  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−7/4 × 2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−7/4 × 2 = −14/4 = −7/2 = −3,5. Écriture décimale finie → 𝔻." },
-  { q: "Vrai ou faux : <span class='highlight'>√3 + √3 appartient à ℚ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! √3 + √3 = 2√3. Multiplier un irrationnel par un rationnel non nul reste irrationnel (ℝ)." }
-];
-
-let mode = 'train';
-let ACTIVE = QUESTIONS;
-let current = 0;
-let score = 0;
-let streak = 0;
-let bestStreak = 0;
-let answered = false;
-let history = [];
-let timerInterval = null;
-let timeLeft = 15;
-const TIME_LIMIT = 15;
-
-const questionText = document.getElementById('questionText');
-const optionsWrap = document.getElementById('optionsWrap');
-const feedback = document.getElementById('feedback');
-const nextBtn = document.getElementById('nextBtn');
-const qmeta = document.getElementById('qmeta');
-const scoreText = document.getElementById('scoreText');
-const streakText = document.getElementById('streakText');
-const posMarker = document.getElementById('posMarker');
-const ticksWrap = document.getElementById('ticks');
-const quizCard = document.getElementById('quizCard');
-const resultCard = document.getElementById('resultCard');
-const startCard = document.getElementById('startCard');
-const scorebar = document.getElementById('scorebar');
-const numberlineWrap = document.getElementById('numberline');
-const timerbarWrap = document.getElementById('timerbarWrap');
-const timerFill = document.getElementById('timerFill');
-
-document.getElementById('modeTrain').addEventListener('click', () => startQuiz('train'));
-document.getElementById('modeChallenge').addEventListener('click', () => startQuiz('challenge'));
-
-function startQuiz(chosenMode){
-  mode = chosenMode;
-  ACTIVE = mode === 'challenge' ? CHALLENGE_QUESTIONS : QUESTIONS;
-  current = 0; score = 0; streak = 0; bestStreak = 0; history = [];
-  startCard.style.display = 'none';
-  resultCard.style.display = 'none';
-  scorebar.style.display = 'flex';
-  numberlineWrap.style.display = 'block';
-  quizCard.style.display = 'block';
-  timerbarWrap.style.display = mode === 'challenge' ? 'block' : 'none';
-  buildTicks();
-  renderQuestion();
-}
-
-function buildTicks(){
-  ticksWrap.innerHTML = '';
-  const n = ACTIVE.length;
-  for(let i=0;i<=n;i++){
-    const t = document.createElement('div');
-    t.className='tick';
-    t.style.left = (i/n*100)+'%';
-    ticksWrap.appendChild(t);
-  }
-}
-
-function updatePosition(){
-  const n = ACTIVE.length;
-  const pct = current/n*100;
-  posMarker.style.left = pct+'%';
-  posMarker.textContent = current;
-}
-
-function shuffle(arr){
-  const a = [...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-
-function renderQuestion(){
-  answered = false;
-  const item = ACTIVE[current];
-  const badge = mode === 'challenge' ? '<span class="badge-defi">Défi</span>' : '';
-  qmeta.innerHTML = `Question ${current+1} / ${ACTIVE.length}${badge}`;
-  questionText.innerHTML = item.q;
-  feedback.className = 'feedback';
-  feedback.textContent = '';
-  nextBtn.classList.remove('show');
-  optionsWrap.innerHTML = '';
-
-  const opts = shuffle(item.opts);
-  opts.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'opt';
-    const isSetSymbol = SETS.includes(opt);
-    btn.innerHTML = isSetSymbol
-      ? `<span class="sym">${opt}</span><span>${SET_NAMES[opt]}</span>`
-      : `<span>${opt}</span>`;
-    btn.addEventListener('click', () => selectAnswer(btn, opt, item));
-    optionsWrap.appendChild(btn);
-  });
-
-  updatePosition();
-  scoreText.textContent = `Score : ${score} / ${current}`;
-  streakText.textContent = streak >= 2 ? `🔥 série de ${streak}` : '';
-
-  if(mode === 'challenge'){
-    startTimer(item);
-  }
-}
-
-function startTimer(item){
-  clearInterval(timerInterval);
-  timeLeft = TIME_LIMIT;
-  timerFill.style.width = '100%';
-  timerFill.classList.remove('low');
-  const stepMs = 100;
-  timerInterval = setInterval(() => {
-    timeLeft -= stepMs/1000;
-    const pct = Math.max(0, (timeLeft/TIME_LIMIT)*100);
-    timerFill.style.width = pct + '%';
-    if(pct < 30) timerFill.classList.add('low');
-    if(timeLeft <= 0){
-      clearInterval(timerInterval);
-      if(!answered){
-        timeExpired(item);
-      }
-    }
-  }, stepMs);
-}
-
-function timeExpired(item){
-  answered = true;
-  streak = 0;
-  const allBtns = optionsWrap.querySelectorAll('.opt');
-  allBtns.forEach(b => {
-    b.classList.add('locked','dim');
-    if(b.textContent.includes(item.correct) || (b.querySelector('.sym') && b.querySelector('.sym').textContent === item.correct)){
-      b.classList.remove('dim');
-      b.classList.add('correct');
-    }
-  });
-  feedback.className = 'feedback show bad';
-  feedback.textContent = '⏱ Temps écoulé ! ' + item.exp;
-  history.push({q:item.q, correct:false, set:item.correct});
-  scoreText.textContent = `Score : ${score} / ${current+1}`;
-  nextBtn.classList.add('show');
-}
-
-function selectAnswer(btn, opt, item){
-  if(answered) return;
-  answered = true;
-  clearInterval(timerInterval);
-  const isCorrect = opt === item.correct;
-  const allBtns = optionsWrap.querySelectorAll('.opt');
-
-  allBtns.forEach(b => {
-    b.classList.add('locked');
-    if(b !== btn) b.classList.add('dim');
-  });
-
-  if(isCorrect){
-    btn.classList.add('correct');
-    score++;
-    streak++;
-    bestStreak = Math.max(bestStreak, streak);
-    let bonusNote = '';
-    if(mode === 'challenge' && timeLeft > TIME_LIMIT*0.6){
-      bonusNote = ' <span class="bonus">⚡ rapide !</span>';
-    }
-    feedback.className = 'feedback show good';
-    feedback.innerHTML = '✓ Exact ! ' + item.exp + bonusNote;
-  } else {
-    btn.classList.add('wrong');
-    streak = 0;
-    allBtns.forEach(b => {
-      if(b.textContent.includes(item.correct) || (b.querySelector('.sym') && b.querySelector('.sym').textContent === item.correct)){
-        b.classList.remove('dim');
-        b.classList.add('correct');
-      }
-    });
-    feedback.className = 'feedback show bad';
-    feedback.textContent = '✗ Pas tout à fait. ' + item.exp;
-  }
-
-  history.push({q: item.q, correct: isCorrect, set: item.correct});
-  scoreText.textContent = `Score : ${score} / ${current+1}`;
-  streakText.textContent = streak >= 2 ? `🔥 série de ${streak}` : '';
-  nextBtn.classList.add('show');
-}
-
-nextBtn.addEventListener('click', () => {
-  current++;
-  if(current >= ACTIVE.length){
-    showResult();
-  } else {
-    renderQuestion();
-  }
-});
-
-function showResult(){
-  clearInterval(timerInterval);
-  quizCard.style.display = 'none';
-  resultCard.style.display = 'block';
-  posMarker.style.left = '100%';
-  posMarker.textContent = ACTIVE.length;
-
-  document.getElementById('finalScore').textContent = `${score} / ${ACTIVE.length}`;
-  const pct = score/ACTIVE.length;
-  let msg = '';
-  if(mode === 'challenge'){
-    if(pct === 1) msg = "Sans-faute en mode Défi ! Les pièges ne t'ont pas eu.";
-    else if(pct >= 0.7) msg = "Beau score en Défi ! Quelques pièges t'ont échappé, retente pour le sans-faute.";
-    else msg = "Le mode Défi est corsé exprès. Repasse en Entraînement pour revoir les bases, puis reviens.";
-  } else {
-    if(pct === 1) msg = "Parfait ! ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ n'a plus aucun secret pour toi.";
-    else if(pct >= 0.75) msg = "Très solide ! Encore un petit tour pour viser le sans-faute.";
-    else if(pct >= 0.5) msg = "Pas mal ! Revois le piège du 1/3 et les décimaux à écriture infinie.";
-    else msg = "Relis ton cours sur la méthode de simplification, puis retente ta chance.";
-  }
-  document.getElementById('finalMsg').textContent = msg + (bestStreak>=4 ? ` (meilleure série : ${bestStreak} 🔥)` : '');
-
-  const counts = {};
-  history.forEach(h => {
-    counts[h.set] = counts[h.set] || {correct:0,total:0};
-    counts[h.set].total++;
-    if(h.correct) counts[h.set].correct++;
-  });
-  const breakdown = document.getElementById('breakdown');
-  breakdown.innerHTML = '<div class="qmeta" style="margin-bottom:8px;">Détail par ensemble</div>';
-  Object.keys(counts).sort().forEach(set => {
-    const row = document.createElement('div');
-    row.className = 'breakdown-row';
-    row.innerHTML = `<span class="set">${set} — ${SET_NAMES[set]}</span><span>${counts[set].correct}/${counts[set].total}</span>`;
-    breakdown.appendChild(row);
-  });
-}
-
-document.getElementById('restartBtn').addEventListener('click', () => {
-  clearInterval(timerInterval);
-  resultCard.style.display = 'none';
-  scorebar.style.display = 'none';
-  numberlineWrap.style.display = 'none';
-  quizCard.style.display = 'none';
-  startCard.style.display = 'block';
-});
-</script>
-
 </body>
 </html>
