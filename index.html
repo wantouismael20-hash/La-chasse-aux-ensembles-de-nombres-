@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chasse aux ensembles — ℕ ℤ 𝔻 ℚ ℝ</title>
+
+<!-- Balises pour aider Google à référencer ton site -->
+<meta name="description" content="Quiz et jeu de mathématiques pour réviser les ensembles de nombres en classe de Seconde. Entraînement et défi chronométré.">
+<meta name="keywords" content="maths, seconde, ensembles de nombres, quiz, jeu mathématique, révision seconde, entiers, décimaux, rationnels">
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Karla:wght@400;500;700&display=swap');
 
@@ -38,7 +43,6 @@
     position:relative;
   }
 
-  /* margin rule like notebook paper */
   .sheet::before{
     content:"";
     position:absolute;
@@ -85,7 +89,6 @@
     padding-left:64px;
   }
 
-  /* progress: number line */
   .numberline{
     position:relative;
     height:34px;
@@ -250,7 +253,6 @@
     font-weight:700;
   }
 
-  /* result screen */
   .result{
     display:none;
     text-align:center;
@@ -301,11 +303,6 @@
     .sheet::before{left:8px;}
   }
 
-  @media (prefers-reduced-motion: reduce){
-    *{transition:none !important;}
-  }
-
-  /* mode selection */
   .modes{
     display:grid;
     gap:12px;
@@ -321,6 +318,7 @@
     flex-direction:column;
     gap:4px;
     transition:border-color .15s, transform .1s;
+    width: 100%;
   }
   .modebtn:hover{border-color:var(--blue);transform:translateX(2px);}
   .modebtn.defi{border-color:#dcb87a;background:#fdf8ec;}
@@ -335,7 +333,6 @@
     color:#5a6470;
   }
 
-  /* challenge timer */
   .timerbar{
     height:5px;
     background:#e8e0cc;
@@ -395,7 +392,7 @@
         </button>
         <button class="modebtn defi" id="modeChallenge">
           <span class="modelabel">🔥 Défi chronométré</span>
-          <span class="modedesc">10 questions à plusieurs étapes, 15&nbsp;s chacune. Plus tu réponds vite, plus tu marques.</span>
+          <span class="modedesc">10 questions à plusieurs étapes, 15 s chacune. Plus tu réponds vite, plus tu marques.</span>
         </button>
       </div>
     </div>
@@ -422,7 +419,7 @@
       <button class="nextbtn" id="nextBtn">Question suivante →</button>
     </div>
 
-    <div class="result" id="resultCard">
+    <div class="result" id="resultCard" style="display:none;">
       <div class="qmeta">Résultat final</div>
       <div class="big" id="finalScore">0 / 12</div>
       <p id="finalMsg"></p>
@@ -442,147 +439,35 @@ const SET_NAMES = {
   "ℝ":"réels"
 };
 
-// Each question: text (with optional highlighted expression), correct answer, options subset, explanation
 const QUESTIONS = [
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>−15/3</span> ?",
-    correct: "ℤ",
-    opts: ["ℕ","ℤ","𝔻","ℚ"],
-    exp: "−15/3 = −5. C'est un entier négatif : il n'est pas dans ℕ, donc le plus petit ensemble est ℤ."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/20</span> ?",
-    correct: "𝔻",
-    opts: ["ℤ","𝔻","ℚ","ℝ"],
-    exp: "7/20 = 0,35. L'écriture décimale s'arrête après 2 chiffres : c'est donc un nombre décimal (𝔻)."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>√16</span> ?",
-    correct: "ℕ",
-    opts: ["ℕ","ℤ","𝔻","ℚ"],
-    exp: "√16 = 4, un entier positif : le plus petit ensemble est ℕ."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/3</span> ?",
-    correct: "ℚ",
-    opts: ["𝔻","ℚ","ℝ","ℤ"],
-    exp: "1/3 = 0,3333… ne s'arrête jamais (période infinie), donc ce n'est PAS un décimal. C'est un rationnel (ℚ)."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2</span> ?",
-    correct: "ℝ",
-    opts: ["ℚ","ℝ","𝔻","ℤ"],
-    exp: "√2 ≈ 1,41421356… a des décimales infinies et non périodiques : c'est un irrationnel, donc seulement dans ℝ."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>−0,2</span> ?",
-    correct: "𝔻",
-    opts: ["ℤ","𝔻","ℚ","ℝ"],
-    exp: "−0,2 = −2/10¹. Un seul chiffre après la virgule : c'est un décimal (𝔻)."
-  },
-  {
-    q: "Vrai ou faux : <span class='highlight'>tout nombre décimal est aussi un nombre rationnel</span>.",
-    correct: "Vrai",
-    opts: ["Vrai","Faux"],
-    exp: "Vrai ! ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ : tout décimal peut s'écrire comme une fraction a/b, donc il est aussi rationnel."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/11</span> ?",
-    correct: "ℚ",
-    opts: ["𝔻","ℚ","ℝ"],
-    exp: "7/11 = 0,636363… (le motif « 63 » se répète à l'infini). C'est une écriture infinie périodique → rationnel (ℚ), mais pas décimal."
-  },
-  {
-    q: "Vrai ou faux : <span class='highlight'>π appartient à ℚ</span>.",
-    correct: "Faux",
-    opts: ["Vrai","Faux"],
-    exp: "Faux ! π ≈ 3,14159265… a des décimales infinies et non périodiques. π est irrationnel : il n'appartient qu'à ℝ."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>−5</span> (sachant que −5 = −5,0) ?",
-    correct: "ℤ",
-    opts: ["ℕ","ℤ","𝔻","ℚ"],
-    exp: "−5 est un entier négatif : il n'est pas dans ℕ. Le plus petit ensemble est ℤ (même si on peut aussi l'écrire −50/10¹, ℤ est plus petit que 𝔻)."
-  },
-  {
-    q: "Vrai ou faux : <span class='highlight'>−10/2 appartient à ℕ</span>.",
-    correct: "Faux",
-    opts: ["Vrai","Faux"],
-    exp: "Faux ! −10/2 = −5, qui est négatif. ℕ ne contient que les entiers positifs ou nuls. −5 appartient à ℤ."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>3/4</span> ?",
-    correct: "𝔻",
-    opts: ["ℤ","𝔻","ℚ","ℝ"],
-    exp: "3/4 = 0,75, écriture décimale finie (2 chiffres) : c'est un nombre décimal (𝔻)."
-  }
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−15/3</span> ?", correct: "ℤ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "−15/3 = −5. C'est un entier négatif : il n'est pas dans ℕ, donc le plus petit ensemble est ℤ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/20</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "7/20 = 0,35. L'écriture décimale s'arrête après 2 chiffres : c'est donc un nombre décimal (𝔻)." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√16</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "√16 = 4, un entier positif : le plus petit ensemble est ℕ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/3</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ","ℤ"], exp: "1/3 = 0,3333… ne s'arrête jamais (période infinie), donc ce n'est PAS un décimal. C'est un rationnel (ℚ)." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2</span> ?", correct: "ℝ", opts: ["ℚ","ℝ","𝔻","ℤ"], exp: "√2 ≈ 1,41421356… a des décimales infinies et non périodiques : c'est un irrationnel, donc seulement dans ℝ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−0,2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−0,2 = −2/10¹. Un seul chiffre après la virgule : c'est un décimal (𝔻)." },
+  { q: "Vrai ou faux : <span class='highlight'>tout nombre décimal est aussi un nombre rationnel</span>.", correct: "Vrai", opts: ["Vrai","Faux"], exp: "Vrai ! ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ : tout décimal peut s'écrire comme une fraction a/b, donc il est aussi rationnel." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/11</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ"], exp: "7/11 = 0,636363… (le motif « 63 » se répète à l'infini). C'est une écriture infinie périodique → rationnel (ℚ), mais pas décimal." },
+  { q: "Vrai ou faux : <span class='highlight'>π appartient à ℚ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! π ≈ 3,14159265… a des décimales infinies et non périodiques. π est irrationnel : il n'appartient qu'à ℝ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−5</span> ?", correct: "ℤ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "−5 est un entier négatif : il n'est pas dans ℕ. Le plus petit ensemble est ℤ." },
+  { q: "Vrai ou faux : <span class='highlight'>−10/2 appartient à ℕ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! −10/2 = −5, qui est négatif. ℕ ne contient que les entiers positifs. −5 appartient à ℤ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>3/4</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "3/4 = 0,75, écriture décimale finie : c'est un nombre décimal (𝔻)." }
 ];
 
-// Défi : questions à plusieurs étapes, avec pièges classiques
 const CHALLENGE_QUESTIONS = [
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2 × √8</span> ?",
-    correct: "ℕ",
-    opts: ["ℕ","ℤ","𝔻","ℝ"],
-    exp: "√2 × √8 = √16 = 4. Deux irrationnels peuvent se combiner en un entier ! Plus petit ensemble : ℕ."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>−3 + 7/2</span> ?",
-    correct: "𝔻",
-    opts: ["ℤ","𝔻","ℚ","ℝ"],
-    exp: "−3 + 7/2 = −6/2 + 7/2 = 1/2 = 0,5. Écriture décimale finie → 𝔻."
-  },
-  {
-    q: "Vrai ou faux : <span class='highlight'>π − π appartient à ℕ</span>.",
-    correct: "Vrai",
-    opts: ["Vrai","Faux"],
-    exp: "π − π = 0. Même si π est irrationnel, la différence de deux irrationnels identiques donne 0, qui est dans ℕ."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/6 + 1/3</span> ?",
-    correct: "𝔻",
-    opts: ["ℤ","𝔻","ℚ","ℝ"],
-    exp: "1/6 + 1/3 = 1/6 + 2/6 = 3/6 = 1/2 = 0,5. Écriture finie → 𝔻."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>√(9/4)</span> ?",
-    correct: "𝔻",
-    opts: ["ℕ","ℤ","𝔻","ℚ"],
-    exp: "√(9/4) = 3/2 = 1,5. Écriture décimale finie → 𝔻 (et non ℕ ou ℤ car ce n'est pas entier)."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>22/7</span> ?",
-    correct: "ℚ",
-    opts: ["𝔻","ℚ","ℝ"],
-    exp: "22/7 = 3,142857142857… : le motif « 142857 » se répète à l'infini. Écriture infinie périodique → rationnel (ℚ), pas décimal, même si ça ressemble à π."
-  },
-  {
-    q: "Vrai ou faux : <span class='highlight'>la somme de deux nombres irrationnels est toujours irrationnelle</span>.",
-    correct: "Faux",
-    opts: ["Vrai","Faux"],
-    exp: "Faux ! Contre-exemple : √2 + (−√2) = 0, qui est rationnel (et même naturel)."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>(√5)² − 4</span> ?",
-    correct: "ℕ",
-    opts: ["ℕ","ℤ","𝔻","ℚ"],
-    exp: "(√5)² = 5, donc 5 − 4 = 1. C'est un entier naturel : ℕ."
-  },
-  {
-    q: "Quel est le plus petit ensemble contenant <span class='highlight'>−7/4 × 2</span> ?",
-    correct: "𝔻",
-    opts: ["ℤ","𝔻","ℚ","ℝ"],
-    exp: "−7/4 × 2 = −14/4 = −7/2 = −3,5. Écriture décimale finie (négative) → 𝔻."
-  },
-  {
-    q: "Vrai ou faux : <span class='highlight'>√3 + √3 appartient à ℚ</span>.",
-    correct: "Faux",
-    opts: ["Vrai","Faux"],
-    exp: "Faux ! √3 + √3 = 2√3 ≈ 3,464… Multiplier un irrationnel par un rationnel non nul reste irrationnel. Il n'appartient qu'à ℝ."
-  }
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2 × √8</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℝ"], exp: "√2 × √8 = √16 = 4. Deux irrationnels peuvent se combiner en un entier ! Plus petit ensemble : ℕ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−3 + 7/2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−3 + 7/2 = −6/2 + 7/2 = 1/2 = 0,5. Écriture décimale finie → 𝔻." },
+  { q: "Vrai ou faux : <span class='highlight'>π − π appartient à ℕ</span>.", correct: "Vrai", opts: ["Vrai","Faux"], exp: "π − π = 0. Même si π est irrationnel, la différence donne 0, qui est dans ℕ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/6 + 1/3</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "1/6 + 1/3 = 1/6 + 2/6 = 3/6 = 1/2 = 0,5. Écriture finie → 𝔻." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√(9/4)</span> ?", correct: "𝔻", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "√(9/4) = 3/2 = 1,5. Écriture décimale finie → 𝔻." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>22/7</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ"], exp: "22/7 = 3,142857... : le motif se répète à l'infini. Écriture infinie périodique → rationnel (ℚ)." },
+  { q: "Vrai ou faux : <span class='highlight'>la somme de deux nombres irrationnels est toujours irrationnelle</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! Contre-exemple : √2 + (−√2) = 0, qui est rationnel." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>(√5)² − 4</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "(√5)² = 5, donc 5 − 4 = 1. C'est un entier naturel : ℕ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−7/4 × 2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−7/4 × 2 = −14/4 = −7/2 = −3,5. Écriture décimale finie → 𝔻." },
+  { q: "Vrai ou faux : <span class='highlight'>√3 + √3 appartient à ℚ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! √3 + √3 = 2√3. Multiplier un irrationnel par un rationnel non nul reste irrationnel (ℝ)." }
 ];
 
-let mode = 'train'; // 'train' ou 'challenge'
+let mode = 'train';
 let ACTIVE = QUESTIONS;
 let current = 0;
 let score = 0;
@@ -619,6 +504,7 @@ function startQuiz(chosenMode){
   ACTIVE = mode === 'challenge' ? CHALLENGE_QUESTIONS : QUESTIONS;
   current = 0; score = 0; streak = 0; bestStreak = 0; history = [];
   startCard.style.display = 'none';
+  resultCard.style.display = 'none';
   scorebar.style.display = 'flex';
   numberlineWrap.style.display = 'block';
   quizCard.style.display = 'block';
@@ -697,4 +583,27 @@ function startTimer(item){
     const pct = Math.max(0, (timeLeft/TIME_LIMIT)*100);
     timerFill.style.width = pct + '%';
     if(pct < 30) timerFill.classList.add('low');
-    if(timeLeft <= 0)
+    if(timeLeft <= 0){
+      clearInterval(timerInterval);
+      if(!answered){
+        timeExpired(item);
+      }
+    }
+  }, stepMs);
+}
+
+function timeExpired(item){
+  answered = true;
+  streak = 0;
+  const allBtns = optionsWrap.querySelectorAll('.opt');
+  allBtns.forEach(b => {
+    b.classList.add('locked','dim');
+    if(b.textContent.includes(item.correct) || (b.querySelector('.sym') && b.querySelector('.sym').textContent === item.correct)){
+      b.classList.remove('dim');
+      b.classList.add('correct');
+    }
+  });
+  feedback.className = 'feedback show bad';
+  feedback.textContent = '⏱ Temps écoulé ! ' + item.exp;
+  history.push({q:item.q, correct:false, set:item.correct});
+  scoreT
