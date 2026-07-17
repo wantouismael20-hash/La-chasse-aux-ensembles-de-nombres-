@@ -1,434 +1,3 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chasse aux ensembles — ℕ ℤ 𝔻 ℚ ℝ</title>
-
-<!-- Balises pour aider Google à référencer ton site -->
-<meta name="description" content="Quiz et jeu de mathématiques pour réviser les ensembles de nombres en classe de Seconde. Entraînement et défi chronométré.">
-<meta name="keywords" content="maths, seconde, ensembles de nombres, quiz, jeu mathématique, révision seconde, entiers, décimaux, rationnels">
-
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Karla:wght@400;500;700&display=swap');
-
-  :root{
-    --paper:#f4f0e6;
-    --ink:#20303d;
-    --line:#c9c0ab;
-    --blue:#2f5d8a;
-    --coral:#c85a3a;
-    --green:#3f7a53;
-    --gold:#d9a441;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:
-      linear-gradient(var(--paper),var(--paper)),
-      repeating-linear-gradient(to bottom, transparent 0 38px, var(--line) 38px 39px);
-    background-color:var(--paper);
-    color:var(--ink);
-    font-family:'Karla',sans-serif;
-    min-height:100vh;
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-    padding:32px 16px 60px;
-  }
-
-  .sheet{
-    width:100%;
-    max-width:640px;
-    position:relative;
-  }
-
-  .sheet::before{
-    content:"";
-    position:absolute;
-    left:46px;
-    top:0;
-    bottom:0;
-    width:2px;
-    background:#c8664a55;
-  }
-
-  header{
-    padding:6px 0 18px 64px;
-  }
-  .eyebrow{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    letter-spacing:.12em;
-    text-transform:uppercase;
-    color:var(--coral);
-    font-weight:700;
-  }
-  h1{
-    font-family:'Fraunces',serif;
-    font-weight:700;
-    font-size:clamp(28px,6vw,40px);
-    margin:4px 0 6px;
-    line-height:1.05;
-  }
-  .subtitle{
-    font-size:15px;
-    color:#4a5a68;
-    max-width:46ch;
-  }
-
-  .chain{
-    font-family:'JetBrains Mono',monospace;
-    font-size:15px;
-    margin-top:10px;
-    color:var(--blue);
-    letter-spacing:.02em;
-  }
-
-  main{
-    padding-left:64px;
-  }
-
-  .numberline{
-    position:relative;
-    height:34px;
-    margin:8px 0 26px;
-  }
-  .numberline .track{
-    position:absolute;
-    top:16px;
-    left:0;right:0;
-    height:2px;
-    background:var(--ink);
-  }
-  .numberline .tick{
-    position:absolute;
-    top:11px;
-    width:1px;height:12px;
-    background:#9aa5ad;
-  }
-  .numberline .pos{
-    position:absolute;
-    top:2px;
-    width:30px;height:30px;
-    margin-left:-15px;
-    border-radius:50%;
-    background:var(--coral);
-    color:#fff;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
-    font-size:13px;
-    transition:left .5s cubic-bezier(.4,0,.2,1);
-    box-shadow:0 3px 8px rgba(0,0,0,.25);
-    z-index:2;
-  }
-
-  .card{
-    background:#fffdf8;
-    border:1px solid #d9d0ba;
-    border-radius:2px;
-    padding:26px 24px 22px;
-    box-shadow:2px 4px 0 #d9d0ba;
-    margin-bottom:22px;
-  }
-
-  .qmeta{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;
-    color:#8a8272;
-    text-transform:uppercase;
-    letter-spacing:.1em;
-    margin-bottom:8px;
-  }
-
-  .question{
-    font-family:'Fraunces',serif;
-    font-size:22px;
-    line-height:1.3;
-    margin-bottom:20px;
-  }
-  .question .highlight{
-    color:var(--blue);
-    font-weight:700;
-  }
-
-  .options{
-    display:grid;
-    gap:10px;
-  }
-  .opt{
-    text-align:left;
-    border:1.5px solid #cfc6b0;
-    background:#fff;
-    padding:13px 16px;
-    border-radius:2px;
-    font-family:'Karla',sans-serif;
-    font-size:16px;
-    font-weight:500;
-    cursor:pointer;
-    color:var(--ink);
-    transition:border-color .15s, transform .1s, background .15s;
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .opt .sym{
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
-    color:var(--blue);
-  }
-  .opt:hover:not(.locked){
-    border-color:var(--blue);
-    transform:translateX(2px);
-  }
-  .opt.correct{
-    border-color:var(--green);
-    background:#eaf3ec;
-  }
-  .opt.correct::after{
-    content:"✓ correct";
-    margin-left:auto;
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    color:var(--green);
-    font-weight:700;
-  }
-  .opt.wrong{
-    border-color:var(--coral);
-    background:#faece7;
-  }
-  .opt.wrong::after{
-    content:"✗";
-    margin-left:auto;
-    font-family:'JetBrains Mono',monospace;
-    font-size:14px;
-    color:var(--coral);
-    font-weight:700;
-  }
-  .opt.locked{cursor:default;}
-  .opt.dim{opacity:.5;}
-
-  .feedback{
-    margin-top:16px;
-    font-size:14.5px;
-    line-height:1.5;
-    padding:12px 14px;
-    border-radius:2px;
-    display:none;
-  }
-  .feedback.show{display:block;}
-  .feedback.good{background:#eaf3ec;color:#2b5a3b;border:1px solid #bcdcc4;}
-  .feedback.bad{background:#faece7;color:#8a3d24;border:1px solid #ecc3ae;}
-
-  .nextbtn{
-    margin-top:16px;
-    display:none;
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
-    font-size:13px;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    background:var(--ink);
-    color:#fdf8ee;
-    border:none;
-    padding:12px 20px;
-    border-radius:2px;
-    cursor:pointer;
-  }
-  .nextbtn.show{display:inline-block;}
-  .nextbtn:hover{background:#0f1c26;}
-
-  .scorebar{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:13px;
-    color:#5a6470;
-    margin-bottom:4px;
-  }
-  .streak{
-    color:var(--gold);
-    font-weight:700;
-  }
-
-  .result{
-    display:none;
-    text-align:center;
-    padding:20px 24px 30px;
-  }
-  .result.show{display:block;}
-  .result .big{
-    font-family:'Fraunces',serif;
-    font-weight:700;
-    font-size:56px;
-    color:var(--blue);
-    margin:6px 0;
-  }
-  .result p{color:#4a5a68;font-size:15px;}
-  .restart{
-    margin-top:10px;
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
-    font-size:13px;
-    background:var(--coral);
-    color:#fff;
-    border:none;
-    padding:12px 22px;
-    border-radius:2px;
-    cursor:pointer;
-    letter-spacing:.05em;
-    text-transform:uppercase;
-  }
-  .restart:hover{background:#a8452a;}
-
-  .breakdown{
-    text-align:left;
-    margin-top:22px;
-    border-top:1px dashed var(--line);
-    padding-top:16px;
-  }
-  .breakdown-row{
-    display:flex;
-    justify-content:space-between;
-    font-size:13px;
-    padding:4px 0;
-    font-family:'JetBrains Mono',monospace;
-  }
-  .breakdown-row .set{color:var(--blue);font-weight:700;}
-
-  @media (max-width:480px){
-    header, main{padding-left:20px;}
-    .sheet::before{left:8px;}
-  }
-
-  .modes{
-    display:grid;
-    gap:12px;
-  }
-  .modebtn{
-    text-align:left;
-    border:1.5px solid #cfc6b0;
-    background:#fff;
-    padding:16px 18px;
-    border-radius:2px;
-    cursor:pointer;
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-    transition:border-color .15s, transform .1s;
-    width: 100%;
-  }
-  .modebtn:hover{border-color:var(--blue);transform:translateX(2px);}
-  .modebtn.defi{border-color:#dcb87a;background:#fdf8ec;}
-  .modebtn.defi:hover{border-color:var(--gold);}
-  .modelabel{
-    font-family:'Fraunces',serif;
-    font-weight:700;
-    font-size:18px;
-  }
-  .modedesc{
-    font-size:13.5px;
-    color:#5a6470;
-  }
-
-  .timerbar{
-    height:5px;
-    background:#e8e0cc;
-    border-radius:3px;
-    margin-bottom:18px;
-    overflow:hidden;
-  }
-  .timerfill{
-    height:100%;
-    width:100%;
-    background:var(--gold);
-    transition:width .1s linear, background .2s;
-  }
-  .timerfill.low{background:var(--coral);}
-
-  .bonus{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    color:var(--gold);
-    font-weight:700;
-    margin-left:4px;
-  }
-
-  .badge-defi{
-    display:inline-block;
-    font-family:'JetBrains Mono',monospace;
-    font-size:10px;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    background:var(--gold);
-    color:#fff;
-    padding:2px 7px;
-    border-radius:10px;
-    margin-left:8px;
-    vertical-align:middle;
-  }
-</style>
-</head>
-<body>
-
-<div class="sheet">
-  <header>
-    <div class="eyebrow">Fiche → jeu</div>
-    <h1>La chasse aux ensembles</h1>
-    <div class="subtitle">Classe chaque nombre dans le plus petit ensemble possible. Simplifie d'abord, réfléchis ensuite.</div>
-    <div class="chain">ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</div>
-  </header>
-
-  <main>
-    <div class="card start" id="startCard">
-      <div class="qmeta">Choisis ton mode</div>
-      <div class="question" style="margin-bottom:18px;">Comment veux-tu jouer ?</div>
-      <div class="modes">
-        <button class="modebtn" id="modeTrain">
-          <span class="modelabel">Entraînement</span>
-          <span class="modedesc">12 questions, à ton rythme, sans chrono.</span>
-        </button>
-        <button class="modebtn defi" id="modeChallenge">
-          <span class="modelabel">🔥 Défi chronométré</span>
-          <span class="modedesc">10 questions à plusieurs étapes, 15 s chacune. Plus tu réponds vite, plus tu marques.</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="scorebar" id="scorebar" style="display:none;">
-      <span id="scoreText">Score : 0 / 0</span>
-      <span class="streak" id="streakText"></span>
-    </div>
-
-    <div class="numberline" id="numberline" style="display:none;">
-      <div class="track"></div>
-      <div id="ticks"></div>
-      <div class="pos" id="posMarker">0</div>
-    </div>
-
-    <div class="card" id="quizCard" style="display:none;">
-      <div class="timerbar" id="timerbarWrap" style="display:none;">
-        <div class="timerfill" id="timerFill"></div>
-      </div>
-      <div class="qmeta" id="qmeta">Question 1 / 12</div>
-      <div class="question" id="questionText"></div>
-      <div class="options" id="optionsWrap"></div>
-      <div class="feedback" id="feedback"></div>
-      <button class="nextbtn" id="nextBtn">Question suivante →</button>
-    </div>
-
-    <div class="result" id="resultCard" style="display:none;">
-      <div class="qmeta">Résultat final</div>
-      <div class="big" id="finalScore">0 / 12</div>
-      <p id="finalMsg"></p>
-      <div class="breakdown" id="breakdown"></div>
-      <button class="restart" id="restartBtn">Recommencer</button>
-    </div>
-  </main>
-</div>
-
 <script>
 const SETS = ["ℕ","ℤ","𝔻","ℚ","ℝ"];
 const SET_NAMES = {
@@ -606,4 +175,389 @@ function timeExpired(item){
   feedback.className = 'feedback show bad';
   feedback.textContent = '⏱ Temps écoulé ! ' + item.exp;
   history.push({q:item.q, correct:false, set:item.correct});
-  scoreT
+  scoreText.textContent = `Score : ${score} / ${current+1}`;
+  nextBtn.classList.add('show');
+}
+
+function selectAnswer(btn, opt, item){
+  if(answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+  const isCorrect = opt === item.correct;
+  const allBtns = optionsWrap.querySelectorAll('.opt');
+
+  allBtns.forEach(b => {
+    b.classList.add('locked');
+    if(b !== btn) b.classList.add('dim');
+  });
+
+  if(isCorrect){
+    btn.classList.add('correct');
+    score++;
+    streak++;
+    bestStreak = Math.max(bestStreak, streak);
+    let bonusNote = '';
+    if(mode === 'challenge' && timeLeft > TIME_LIMIT*0.6){
+      bonusNote = ' <span class="bonus">⚡ rapide !</span>';
+    }
+    feedback.className = 'feedback show good';
+    feedback.innerHTML = '✓ Exact ! ' + item.exp + bonusNote;
+  } else {
+    btn.classList.add('wrong');
+    streak = 0;
+    allBtns.forEach(b => {
+      if(b.textContent.includes(item.correct) || (b.querySelector('.sym') && b.querySelector('.sym').textContent === item.correct)){
+        b.classList.remove('dim');
+        b.classList.add('correct');
+      }
+    });
+    feedback.className = 'feedback show bad';
+    feedback.textContent = '✗ Pas tout à fait. ' + item.exp;
+  }
+
+  history.push({q: item.q, correct: isCorrect, set: item.correct});
+  scoreText.textContent = `Score : ${score} / ${current+1}`;
+  streakText.textContent = streak >= 2 ? `🔥 série de ${streak}` : '';
+  nextBtn.classList.add('show');
+}
+
+nextBtn.addEventListener('click', () => {
+  current++;
+  if(current >= ACTIVE.length){
+    showResult();
+  } else {
+    renderQuestion();
+  }
+});
+
+function showResult(){
+  clearInterval(timerInterval);
+  quizCard.style.display = 'none';
+  resultCard.style.display = 'block';
+  posMarker.style.left = '100%';
+  posMarker.textContent = ACTIVE.length;
+
+  document.getElementById('finalScore').textContent = `${score} / ${ACTIVE.length}`;
+  const pct = score/ACTIVE.length;
+  let msg = '';
+  if(mode === 'challenge'){
+    if(pct === 1) msg = "Sans-faute en mode Défi ! Les pièges ne t'ont pas eu.";
+    else if(pct >= 0.7) msg = "Beau score en Défi ! Quelques pièges t'ont échappé, retente pour le sans-faute.";
+    else msg = "Le mode Défi est corsé exprès. Repasse en Entraînement pour revoir les bases, puis reviens.";
+  } else {
+    if(pct === 1) msg = "Parfait ! ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ n'a plus aucun secret pour toi.";
+    else if(pct >= 0.75) msg = "Très solide ! Encore un petit tour pour viser le sans-faute.";
+    else if(pct >= 0.5) msg = "Pas mal ! Revois le piège du 1/3 et les décimaux à écriture infinie.";
+    else msg = "Relis ton cours sur la méthode de simplification, puis retente ta chance.";
+  }
+  document.getElementById('finalMsg').textContent = msg + (bestStreak>=4 ? ` (meilleure série : ${bestStreak} 🔥)` : '');
+
+  const counts = {};
+  history.forEach(h => {
+    counts[h.set] = counts[h.set] || {correct:0,total:0};
+    counts[h.set].total++;
+    if(h.correct) counts[h.set].correct++;
+  });
+  const breakdown = document.getElementById('breakdown');
+  breakdown.innerHTML = '<div class="qmeta" style="margin-bottom:8px;">Détail par ensemble</div>';
+  Object.keys(counts).sort().forEach(set => {
+    const row = document.createElement('div');
+    row.className = 'breakdown-row';
+    row.innerHTML = `<span class="set">${set} — ${SET_NAMES[set]}</span><span>${counts[set].correct}/${counts[set].total}</span>`;
+    breakdown.appendChild(row);
+  });
+}
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  clearInterval(timerInterval);
+  resultCard.style.display = 'none';
+  scorebar.style.display = 'none';
+  numberlineWrap.style.display = 'none';
+  quizCard.style.display = 'none';
+  startCard.style.display = 'block';
+});
+</script>
+
+</body>
+</html> <script>
+const SETS = ["ℕ","ℤ","𝔻","ℚ","ℝ"];
+const SET_NAMES = {
+  "ℕ":"entiers naturels",
+  "ℤ":"entiers relatifs",
+  "𝔻":"décimaux",
+  "ℚ":"rationnels",
+  "ℝ":"réels"
+};
+
+const QUESTIONS = [
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−15/3</span> ?", correct: "ℤ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "−15/3 = −5. C'est un entier négatif : il n'est pas dans ℕ, donc le plus petit ensemble est ℤ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/20</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "7/20 = 0,35. L'écriture décimale s'arrête après 2 chiffres : c'est donc un nombre décimal (𝔻)." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√16</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "√16 = 4, un entier positif : le plus petit ensemble est ℕ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/3</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ","ℤ"], exp: "1/3 = 0,3333… ne s'arrête jamais (période infinie), donc ce n'est PAS un décimal. C'est un rationnel (ℚ)." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2</span> ?", correct: "ℝ", opts: ["ℚ","ℝ","𝔻","ℤ"], exp: "√2 ≈ 1,41421356… a des décimales infinies et non périodiques : c'est un irrationnel, donc seulement dans ℝ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−0,2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−0,2 = −2/10¹. Un seul chiffre après la virgule : c'est un décimal (𝔻)." },
+  { q: "Vrai ou faux : <span class='highlight'>tout nombre décimal est aussi un nombre rationnel</span>.", correct: "Vrai", opts: ["Vrai","Faux"], exp: "Vrai ! ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ : tout décimal peut s'écrire comme une fraction a/b, donc il est aussi rationnel." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>7/11</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ"], exp: "7/11 = 0,636363… (le motif « 63 » se répète à l'infini). C'est une écriture infinie périodique → rationnel (ℚ), mais pas décimal." },
+  { q: "Vrai ou faux : <span class='highlight'>π appartient à ℚ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! π ≈ 3,14159265… a des décimales infinies et non périodiques. π est irrationnel : il n'appartient qu'à ℝ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−5</span> ?", correct: "ℤ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "−5 est un entier négatif : il n'est pas dans ℕ. Le plus petit ensemble est ℤ." },
+  { q: "Vrai ou faux : <span class='highlight'>−10/2 appartient à ℕ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! −10/2 = −5, qui est négatif. ℕ ne contient que les entiers positifs. −5 appartient à ℤ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>3/4</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "3/4 = 0,75, écriture décimale finie : c'est un nombre décimal (𝔻)." }
+];
+
+const CHALLENGE_QUESTIONS = [
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√2 × √8</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℝ"], exp: "√2 × √8 = √16 = 4. Deux irrationnels peuvent se combiner en un entier ! Plus petit ensemble : ℕ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−3 + 7/2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−3 + 7/2 = −6/2 + 7/2 = 1/2 = 0,5. Écriture décimale finie → 𝔻." },
+  { q: "Vrai ou faux : <span class='highlight'>π − π appartient à ℕ</span>.", correct: "Vrai", opts: ["Vrai","Faux"], exp: "π − π = 0. Même si π est irrationnel, la différence donne 0, qui est dans ℕ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>1/6 + 1/3</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "1/6 + 1/3 = 1/6 + 2/6 = 3/6 = 1/2 = 0,5. Écriture finie → 𝔻." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>√(9/4)</span> ?", correct: "𝔻", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "√(9/4) = 3/2 = 1,5. Écriture décimale finie → 𝔻." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>22/7</span> ?", correct: "ℚ", opts: ["𝔻","ℚ","ℝ"], exp: "22/7 = 3,142857... : le motif se répète à l'infini. Écriture infinie périodique → rationnel (ℚ)." },
+  { q: "Vrai ou faux : <span class='highlight'>la somme de deux nombres irrationnels est toujours irrationnelle</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! Contre-exemple : √2 + (−√2) = 0, qui est rationnel." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>(√5)² − 4</span> ?", correct: "ℕ", opts: ["ℕ","ℤ","𝔻","ℚ"], exp: "(√5)² = 5, donc 5 − 4 = 1. C'est un entier naturel : ℕ." },
+  { q: "Quel est le plus petit ensemble contenant <span class='highlight'>−7/4 × 2</span> ?", correct: "𝔻", opts: ["ℤ","𝔻","ℚ","ℝ"], exp: "−7/4 × 2 = −14/4 = −7/2 = −3,5. Écriture décimale finie → 𝔻." },
+  { q: "Vrai ou faux : <span class='highlight'>√3 + √3 appartient à ℚ</span>.", correct: "Faux", opts: ["Vrai","Faux"], exp: "Faux ! √3 + √3 = 2√3. Multiplier un irrationnel par un rationnel non nul reste irrationnel (ℝ)." }
+];
+
+let mode = 'train';
+let ACTIVE = QUESTIONS;
+let current = 0;
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let answered = false;
+let history = [];
+let timerInterval = null;
+let timeLeft = 15;
+const TIME_LIMIT = 15;
+
+const questionText = document.getElementById('questionText');
+const optionsWrap = document.getElementById('optionsWrap');
+const feedback = document.getElementById('feedback');
+const nextBtn = document.getElementById('nextBtn');
+const qmeta = document.getElementById('qmeta');
+const scoreText = document.getElementById('scoreText');
+const streakText = document.getElementById('streakText');
+const posMarker = document.getElementById('posMarker');
+const ticksWrap = document.getElementById('ticks');
+const quizCard = document.getElementById('quizCard');
+const resultCard = document.getElementById('resultCard');
+const startCard = document.getElementById('startCard');
+const scorebar = document.getElementById('scorebar');
+const numberlineWrap = document.getElementById('numberline');
+const timerbarWrap = document.getElementById('timerbarWrap');
+const timerFill = document.getElementById('timerFill');
+
+document.getElementById('modeTrain').addEventListener('click', () => startQuiz('train'));
+document.getElementById('modeChallenge').addEventListener('click', () => startQuiz('challenge'));
+
+function startQuiz(chosenMode){
+  mode = chosenMode;
+  ACTIVE = mode === 'challenge' ? CHALLENGE_QUESTIONS : QUESTIONS;
+  current = 0; score = 0; streak = 0; bestStreak = 0; history = [];
+  startCard.style.display = 'none';
+  resultCard.style.display = 'none';
+  scorebar.style.display = 'flex';
+  numberlineWrap.style.display = 'block';
+  quizCard.style.display = 'block';
+  timerbarWrap.style.display = mode === 'challenge' ? 'block' : 'none';
+  buildTicks();
+  renderQuestion();
+}
+
+function buildTicks(){
+  ticksWrap.innerHTML = '';
+  const n = ACTIVE.length;
+  for(let i=0;i<=n;i++){
+    const t = document.createElement('div');
+    t.className='tick';
+    t.style.left = (i/n*100)+'%';
+    ticksWrap.appendChild(t);
+  }
+}
+
+function updatePosition(){
+  const n = ACTIVE.length;
+  const pct = current/n*100;
+  posMarker.style.left = pct+'%';
+  posMarker.textContent = current;
+}
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function renderQuestion(){
+  answered = false;
+  const item = ACTIVE[current];
+  const badge = mode === 'challenge' ? '<span class="badge-defi">Défi</span>' : '';
+  qmeta.innerHTML = `Question ${current+1} / ${ACTIVE.length}${badge}`;
+  questionText.innerHTML = item.q;
+  feedback.className = 'feedback';
+  feedback.textContent = '';
+  nextBtn.classList.remove('show');
+  optionsWrap.innerHTML = '';
+
+  const opts = shuffle(item.opts);
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    const isSetSymbol = SETS.includes(opt);
+    btn.innerHTML = isSetSymbol
+      ? `<span class="sym">${opt}</span><span>${SET_NAMES[opt]}</span>`
+      : `<span>${opt}</span>`;
+    btn.addEventListener('click', () => selectAnswer(btn, opt, item));
+    optionsWrap.appendChild(btn);
+  });
+
+  updatePosition();
+  scoreText.textContent = `Score : ${score} / ${current}`;
+  streakText.textContent = streak >= 2 ? `🔥 série de ${streak}` : '';
+
+  if(mode === 'challenge'){
+    startTimer(item);
+  }
+}
+
+function startTimer(item){
+  clearInterval(timerInterval);
+  timeLeft = TIME_LIMIT;
+  timerFill.style.width = '100%';
+  timerFill.classList.remove('low');
+  const stepMs = 100;
+  timerInterval = setInterval(() => {
+    timeLeft -= stepMs/1000;
+    const pct = Math.max(0, (timeLeft/TIME_LIMIT)*100);
+    timerFill.style.width = pct + '%';
+    if(pct < 30) timerFill.classList.add('low');
+    if(timeLeft <= 0){
+      clearInterval(timerInterval);
+      if(!answered){
+        timeExpired(item);
+      }
+    }
+  }, stepMs);
+}
+
+function timeExpired(item){
+  answered = true;
+  streak = 0;
+  const allBtns = optionsWrap.querySelectorAll('.opt');
+  allBtns.forEach(b => {
+    b.classList.add('locked','dim');
+    if(b.textContent.includes(item.correct) || (b.querySelector('.sym') && b.querySelector('.sym').textContent === item.correct)){
+      b.classList.remove('dim');
+      b.classList.add('correct');
+    }
+  });
+  feedback.className = 'feedback show bad';
+  feedback.textContent = '⏱ Temps écoulé ! ' + item.exp;
+  history.push({q:item.q, correct:false, set:item.correct});
+  scoreText.textContent = `Score : ${score} / ${current+1}`;
+  nextBtn.classList.add('show');
+}
+
+function selectAnswer(btn, opt, item){
+  if(answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+  const isCorrect = opt === item.correct;
+  const allBtns = optionsWrap.querySelectorAll('.opt');
+
+  allBtns.forEach(b => {
+    b.classList.add('locked');
+    if(b !== btn) b.classList.add('dim');
+  });
+
+  if(isCorrect){
+    btn.classList.add('correct');
+    score++;
+    streak++;
+    bestStreak = Math.max(bestStreak, streak);
+    let bonusNote = '';
+    if(mode === 'challenge' && timeLeft > TIME_LIMIT*0.6){
+      bonusNote = ' <span class="bonus">⚡ rapide !</span>';
+    }
+    feedback.className = 'feedback show good';
+    feedback.innerHTML = '✓ Exact ! ' + item.exp + bonusNote;
+  } else {
+    btn.classList.add('wrong');
+    streak = 0;
+    allBtns.forEach(b => {
+      if(b.textContent.includes(item.correct) || (b.querySelector('.sym') && b.querySelector('.sym').textContent === item.correct)){
+        b.classList.remove('dim');
+        b.classList.add('correct');
+      }
+    });
+    feedback.className = 'feedback show bad';
+    feedback.textContent = '✗ Pas tout à fait. ' + item.exp;
+  }
+
+  history.push({q: item.q, correct: isCorrect, set: item.correct});
+  scoreText.textContent = `Score : ${score} / ${current+1}`;
+  streakText.textContent = streak >= 2 ? `🔥 série de ${streak}` : '';
+  nextBtn.classList.add('show');
+}
+
+nextBtn.addEventListener('click', () => {
+  current++;
+  if(current >= ACTIVE.length){
+    showResult();
+  } else {
+    renderQuestion();
+  }
+});
+
+function showResult(){
+  clearInterval(timerInterval);
+  quizCard.style.display = 'none';
+  resultCard.style.display = 'block';
+  posMarker.style.left = '100%';
+  posMarker.textContent = ACTIVE.length;
+
+  document.getElementById('finalScore').textContent = `${score} / ${ACTIVE.length}`;
+  const pct = score/ACTIVE.length;
+  let msg = '';
+  if(mode === 'challenge'){
+    if(pct === 1) msg = "Sans-faute en mode Défi ! Les pièges ne t'ont pas eu.";
+    else if(pct >= 0.7) msg = "Beau score en Défi ! Quelques pièges t'ont échappé, retente pour le sans-faute.";
+    else msg = "Le mode Défi est corsé exprès. Repasse en Entraînement pour revoir les bases, puis reviens.";
+  } else {
+    if(pct === 1) msg = "Parfait ! ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ n'a plus aucun secret pour toi.";
+    else if(pct >= 0.75) msg = "Très solide ! Encore un petit tour pour viser le sans-faute.";
+    else if(pct >= 0.5) msg = "Pas mal ! Revois le piège du 1/3 et les décimaux à écriture infinie.";
+    else msg = "Relis ton cours sur la méthode de simplification, puis retente ta chance.";
+  }
+  document.getElementById('finalMsg').textContent = msg + (bestStreak>=4 ? ` (meilleure série : ${bestStreak} 🔥)` : '');
+
+  const counts = {};
+  history.forEach(h => {
+    counts[h.set] = counts[h.set] || {correct:0,total:0};
+    counts[h.set].total++;
+    if(h.correct) counts[h.set].correct++;
+  });
+  const breakdown = document.getElementById('breakdown');
+  breakdown.innerHTML = '<div class="qmeta" style="margin-bottom:8px;">Détail par ensemble</div>';
+  Object.keys(counts).sort().forEach(set => {
+    const row = document.createElement('div');
+    row.className = 'breakdown-row';
+    row.innerHTML = `<span class="set">${set} — ${SET_NAMES[set]}</span><span>${counts[set].correct}/${counts[set].total}</span>`;
+    breakdown.appendChild(row);
+  });
+}
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  clearInterval(timerInterval);
+  resultCard.style.display = 'none';
+  scorebar.style.display = 'none';
+  numberlineWrap.style.display = 'none';
+  quizCard.style.display = 'none';
+  startCard.style.display = 'block';
+});
+</script>
+
+</body>
+</html>
