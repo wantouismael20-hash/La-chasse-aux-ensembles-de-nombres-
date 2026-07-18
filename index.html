@@ -17,7 +17,7 @@
   .progress-container { width: 100%; height: 8px; background: #e2e8f0; border-radius: 99px; margin-bottom: 20px; overflow: hidden; }
   .progress-bar { height: 100%; width: 0%; background: var(--primary); border-radius: 99px; }
   .qmeta { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); display: flex; justify-content: space-between; margin-bottom: 12px; }
-  .question { font-size: 22px; font-weight: 600; line-height: 1.4; margin-bottom: 24px; }
+  .question { font-size: 20px; font-weight: 600; line-height: 1.4; margin-bottom: 24px; }
   .highlight { background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 2px 8px; border-radius: 8px; font-weight: 800; display: inline-block; }
   .options { display: grid; gap: 12px; }
   .opt { text-align: left; border: 2px solid #e2e8f0; background: #fff; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
@@ -64,14 +64,14 @@
     <div class="card" id="startCard">
       <div class="question" style="text-align:center; margin-bottom:20px;">Prêt à relever le défi ? 🚀</div>
       <div class="modes">
-        <button class="modebtn" id="modeTrain"><strong>🎯 Mode Entraînement</strong><small>12 questions à ton rythme pour t'échauffer et comprendre.</small></button>
-        <button class="modebtn defi" id="modeChallenge"><strong>🔥 Mode Défi Chrono</strong><small>10 questions intenses, 15 secondes par réponse. Ça va chauffer !</small></button>
+        <button class="modebtn" id="modeTrain"><strong>🎯 Mode Entraînement</strong><small>20 questions complètes pour maîtriser parfaitement ton cours.</small></button>
+        <button class="modebtn defi" id="modeChallenge"><strong>🔥 Mode Défi Chrono</strong><small>Sélection rapide et intense, 15 secondes par réponse !</small></button>
       </div>
     </div>
     <div class="card" id="quizCard" style="display:none;">
       <div class="timerbar" id="timerWrap" style="display:none;"><div class="timerfill" id="timerFill"></div></div>
       <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
-      <div class="qmeta"><span id="qmetaText">Question 1/12</span><span id="scoreMeta">Score: 0</span></div>
+      <div class="qmeta"><span id="qmetaText">Question 1/20</span><span id="scoreMeta">Score: 0</span></div>
       <div class="question" id="qText"></div>
       <div class="options" id="optsWrap"></div>
       <div class="feedback" id="fb"></div>
@@ -89,41 +89,45 @@
 <script>
 const NAMES={"ℕ":"entiers naturels","ℤ":"entiers relatifs","𝔻":"décimaux","ℚ":"rationnels","ℝ":"réels"};
 const Q_TRAIN=[
-  {q:"Plus petit ensemble pour <span class='highlight'>−15/3</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻","ℚ"],e:"🧠 −15/3 = −5 (c'est un entier négatif)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>7/20</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ","ℝ"],e:"🧠 7/20 = 0,35 (le nombre de décimales est fini)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>√16</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℚ"],e:"🧠 √16 = 4 (c'est un entier positif !)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>1/3</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"🧠 1/3 = 0,333... (écriture infinie périodique)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>√2</span> ?",c:"ℝ",o:["ℚ","ℝ","𝔻"],e:"🧠 √2 a une infinité de décimales sans logique : il est irrationnel."},
-  {q:"Plus petit ensemble pour <span class='highlight'>−0,2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"🧠 −0,2 a une seule décimale, il est donc décimal."},
-  {q:"Vrai ou Faux : <span class='highlight'>Tout décimal est un rationnel</span>.",c:"Vrai",o:["Vrai","Faux"],e:"🧠 Vrai ! L'ensemble 𝔻 est entièrement inclus dans ℚ."},
-  {q:"Plus petit ensemble pour <span class='highlight'>7/11</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"🧠 7/11 = 0,6363... (le motif se répète à l'infini)."},
-  {q:"Vrai ou Faux : <span class='highlight'>π appartient à ℚ</span>.",c:"Faux",o:["Vrai","Faux"],e:"🧠 Faux, π est le roi des irrationnels, il n'est que dans ℝ."},
-  {q:"Plus petit ensemble pour <span class='highlight'>−5</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻"],e:"🧠 −5 est un entier négatif, donc dans ℤ."},
-  {q:"Vrai ou Faux : <span class='highlight'>−10/2 appartient à ℕ</span>.",c:"Faux",o:["Vrai","Faux"],e:"🧠 −10/2 = −5. C'est négatif, donc exclu de ℕ."},
-  {q:"Plus petit ensemble pour <span class='highlight'>3/4</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"🧠 3/4 = 0,75, l'écriture s'arrête → décimal."}
+  {q:"Quel est le plus petit ensemble contenant <span class='highlight'>15</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℚ"],e:"🧠 15 est un entier positif, il appartient donc à ℕ."},
+  {q:"Quel est le plus petit ensemble contenant <span class='highlight'>-9</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻","ℚ"],e:"🧠 -9 est un entier négatif. Il n'est pas dans ℕ, son plus petit ensemble est ℤ."},
+  {q:"Quel est le plus petit ensemble contenant <span class='highlight'>7,8</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ","ℝ"],e:"🧠 7,8 possède un nombre fini de décimales (un seul chiffre après la virgule) : c'est un décimal (𝔻)."},
+  {q:"Quel est le plus petit ensemble contenant <span class='highlight'>3/4</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ","ℝ"],e:"🧠 3/4 = 0,75. L'écriture décimale s'arrête, c'est donc un décimal (𝔻)."},
+  {q:"Quel est le plus petit ensemble contenant <span class='highlight'>√25</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℝ"],e:"🧠 Attention au piège ! √25 = 5. C'est un entier positif, donc ℕ."},
+  {q:"Quel est le plus petit ensemble contenant <span class='highlight'>-√49</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻","ℚ"],e:"🧠 Simplifions : -√49 = -7. C'est un entier négatif, donc son plus petit ensemble est ℤ."},
+  {q:"Quel est le plus petit ensemble contenant <span class='highlight'>√3</span> ?",c:"ℝ",o:["ℚ","ℝ","𝔻","ℤ"],e:"🧠 √3 ne peut pas s'écrire sous forme de fraction, ses décimales sont infinies et non périodiques : il est irrationnel, donc uniquement dans ℝ."},
+  {q:"Quel est le plus petit ensemble contenant <span class='highlight'>π</span> ?",c:"ℝ",o:["ℚ","ℝ","𝔻"],e:"🧠 π = 3,14159... Ses décimales ne s'arrêtent jamais et ne se répètent pas : il appartient à ℝ."},
+  {q:"Vrai ou Faux : <span class='highlight'>ℕ ⊂ ℤ</span> (ℕ est inclus dans ℤ).",c:"Vrai",o:["Vrai","Faux"],e:"🧠 Vrai ! Tous les entiers naturels (positifs) font aussi partie des entiers relatifs."},
+  {q:"Vrai ou Faux : <span class='highlight'>ℤ ⊂ ℚ</span> (ℤ est inclus dans ℚ).",c:"Vrai",o:["Vrai","Faux"],e:"🧠 Vrai ! Tout entier peut s'écrire sous forme de fraction (ex: -3 = -3/1), il est donc rationnel."},
+  {q:"Vrai ou Faux : <span class='highlight'>ℚ ⊂ 𝔻</span> (ℚ est inclus dans 𝔻).",c:"Faux",o:["Vrai","Faux"],e:"🧠 Faux ! C'est le contraire (𝔻 ⊂ ℚ). Par exemple, 1/3 est dans ℚ mais pas dans 𝔻 car son écriture ne s'arrête jamais."},
+  {q:"Vrai ou Faux : <span class='highlight'>𝔻 ⊂ ℚ</span> (𝔻 est inclus dans ℚ).",c:"Vrai",o:["Vrai","Faux"],e:"🧠 Vrai ! Tout nombre décimal peut s'écrire sous la forme d'une fraction (a/10^n), donc il est rationnel."},
+  {q:"Vrai ou Faux : <span class='highlight'>Tout nombre entier est un nombre décimal</span>.",c:"Vrai",o:["Vrai","Faux"],e:"🧠 Vrai ! Un entier peut s'écrire avec un ',0' (ex: 5 = 5,0). L'ensemble ℤ est inclus dans 𝔻."},
+  {q:"Vrai ou Faux : <span class='highlight'>Tout nombre décimal est rationnel</span>.",c:"Vrai",o:["Vrai","Faux"],e:"🧠 Vrai ! Puisque 𝔻 ⊂ ℚ, n'importe quel décimal appartient automatiquement à ℚ."},
+  {q:"Vrai ou Faux : <span class='highlight'>Tout nombre rationnel est décimal</span>.",c:"Faux",o:["Vrai","Faux"],e:"🧠 Faux ! La fraction 1/3 est rationnelle, mais ce n'est pas un décimal car 1/3 = 0,3333... à l'infini."},
+  {q:"Choisissez la bonne proposition pour : <span class='highlight'>5, -5 et ℤ</span>.",c:"5 ∈ ℕ ; -5 ∉ ℕ ; -5 ∈ ℤ",o:["5 ∈ ℕ ; -5 ∉ ℕ ; -5 ∈ ℤ","5 ∈ ℕ ; -5 ∈ ℕ ; -5 ∉ ℤ","5 ∉ ℕ ; -5 ∈ ℕ ; -5 ∈ ℤ"],e:"🧠 5 est positif (∈ ℕ), -5 est négatif (∉ ℕ), et -5 est bien un entier relatif (∈ ℤ)."},
+  {q:"Choisissez la bonne proposition pour <span class='highlight'>0,75</span>.",c:"0,75 ∈ ⅅ ; 0,75 ∈ ℚ ; 0,75 ∉ ℤ",o:["0,75 ∈ ⅅ ; 0,75 ∈ ℚ ; 0,75 ∉ ℤ","0,75 ∈ ⅅ ; 0,75 ∉ ℚ ; 0,75 ∈ ℤ","0,75 ∉ ⅅ ; 0,75 ∈ ℚ ; 0,75 ∉ ℤ"],e:"🧠 0,75 a une écriture finie (∈ 𝔻), est une fraction 3/4 (∈ ℚ), mais n'est pas un entier (∉ ℤ)."},
+  {q:"Choisissez la bonne proposition pour <span class='highlight'>√2</span>.",c:"√2 ∉ ℚ ; √2 ∈ ℝ",o:["√2 ∉ ℚ ; √2 ∈ ℝ","√2 ∈ ℚ ; √2 ∈ ℝ","√2 ∉ ℚ ; √2 ∉ ℝ"],e:"🧠 √2 est un nombre irrationnel : il n'est pas une fraction (∉ ℚ) et appartient aux réels (∈ ℝ)."},
+  {q:"Parmi <span class='highlight'>1/2, 1/3, 5/8, 7/20</span>, lesquelles sont décimales ?",c:"1/2, 5/8 et 7/20",o:["1/2, 5/8 et 7/20","Toutes sont décimales","Seulement 1/2 et 7/20"],e:"🧠 1/2=0,5 ; 5/8=0,625 ; 7/20=0,35 (écritures finies, donc 𝔻). Seul 1/3=0,333... est infini, donc non décimal."},
+  {q:"Trouvez le bon rangement des plus petits ensembles pour : <span class='highlight'>-12 ; 0 ; 4,6 ; 9/5 ; √64 ; √7 ; π</span>",c:"-12∈ℤ ; 0∈ℕ ; 4,6∈𝔻 ; 9/5∈𝔻 ; √64∈ℕ ; √7∈ℝ ; π∈ℝ",o:["-12∈ℤ ; 0∈ℕ ; 4,6∈𝔻 ; 9/5∈𝔻 ; √64∈ℕ ; √7∈ℝ ; π∈ℝ","-12∈ℕ ; 0∈ℤ ; 4,6∈𝔻 ; 9/5∈ℚ ; √64∈ℤ ; √7∈ℝ ; π∈ℝ","-12∈ℤ ; 0∈ℕ ; 4,6∈ℚ ; 9/5∈𝔻 ; √64∈ℝ ; √7∈ℝ ; π∈ℝ"],e:"🧠 Explications : √64 = 8 (ℕ), 9/5 = 1,8 (𝔻), et √7 et π sont irrationnels (ℝ)."}
 ];
-const Q_DEFI=[
-  {q:"Plus petit ensemble pour <span class='highlight'>√2 × √8</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℝ"],e:"⚡ Bien joué ! √2 × √8 = √16 = 4 !"},
-  {q:"Plus petit ensemble pour <span class='highlight'>−3 + 7/2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"⚡ −3 + 3,5 = 0,5 (un nombre décimal)."},
-  {q:"Vrai ou Faux : <span class='highlight'>π − π appartient à ℕ</span>.",c:"Vrai",o:["Vrai","Faux"],e:"⚡ π − π = 0. Et zéro est un entier naturel !"},
-  {q:"Plus petit ensemble pour <span class='highlight'>1/6 + 1/3</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"⚡ 1/6 + 2/6 = 3/6 = 0,5 (décimal)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>√(9/4)</span> ?",c:"𝔻",o:["ℕ","ℤ","𝔻","ℚ"],e:"⚡ √(9/4) = 3/2 = 1,5."},
-  {q:"Plus petit ensemble pour <span class='highlight'>22/7</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"⚡ Ce n'est qu'une approximation de π, c'est une fraction donc ℚ !"},
-  {q:"La somme de deux irrationnels est toujours irrationnelle ?",c:"Faux",o:["Vrai","Faux"],e:"⚡ Faux ! Exemple : √2 + (−√2) = 0 (rationnel)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>(√5)² − 4</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻"],e:"⚡ (√5)² = 5. Et 5 − 4 = 1."},
-  {q:"Plus petit ensemble pour <span class='highlight'>−7/4 × 2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"⚡ −14/4 = −3,5 (décimal)."},
-  {q:"Vrai ou Faux : <span class='highlight'>√3 + √3 appartient à ℚ</span>.",c:"Faux",o:["Vrai","Faux"],e:"⚡ √3 + √3 = 2√3 (reste irrationnel, donc ℝ)."}
-];
+
 let mode='train',ACTIVE=Q_TRAIN,current=0,score=0,answered=false,timer=null,timeLeft=15;
 const sCard=document.getElementById('startCard'),qCard=document.getElementById('quizCard'),rCard=document.getElementById('resultCard');
 document.getElementById('modeTrain').addEventListener('click',()=>start('train'));
 document.getElementById('modeChallenge').addEventListener('click',()=>start('challenge'));
+
 function start(m){
-  mode=m;ACTIVE=mode==='challenge'?Q_DEFI:Q_TRAIN;
+  mode=m;
+  if(mode==='challenge') {
+    ACTIVE = [...Q_TRAIN].sort(() => Math.random() - 0.5).slice(0, 10);
+  } else {
+    ACTIVE = Q_TRAIN;
+  }
   current=0;score=0;sCard.style.display='none';rCard.classList.remove('show');qCard.style.display='block';
   document.getElementById('timerWrap').style.display=mode==='challenge'?'block':'none';
   showQ();
 }
+
 function showQ(){
   answered=false;clearInterval(timer);
   const item=ACTIVE[current];
@@ -142,6 +146,7 @@ function showQ(){
   });
   if(mode==='challenge') launchTimer(item);
 }
+
 function launchTimer(item){
   timeLeft=15;const f=document.getElementById('timerFill');f.style.width='100%';f.classList.remove('low');
   timer=setInterval(()=>{
@@ -150,6 +155,7 @@ function launchTimer(item){
     if(timeLeft<=0){clearInterval(timer);if(!answered)endTimer(item);}
   },100);
 }
+
 function endTimer(item){
   answered=true;
   document.querySelectorAll('.opt').forEach(b=>{
@@ -160,6 +166,7 @@ function endTimer(item){
   document.getElementById('fb').textContent='⏱ Temps écoulé ! '+item.e;
   document.getElementById('nextBtn').classList.add('show');
 }
+
 function clickOpt(btn,o,item){
   if(answered)return;answered=true;clearInterval(timer);
   const ok=o===item.c;
@@ -176,6 +183,7 @@ function clickOpt(btn,o,item){
   }
   document.getElementById('nextBtn').classList.add('show');
 }
+
 document.getElementById('nextBtn').addEventListener('click',()=>{
   current++;
   if(current>=ACTIVE.length){
