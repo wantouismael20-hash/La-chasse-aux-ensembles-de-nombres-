@@ -2,111 +2,140 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chasse aux ensembles — ℕ ℤ 𝔻 ℚ ℝ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Chasse aux Ensembles — ℕ ℤ 𝔻 ℚ ℝ</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=JetBrains+Mono:wght@500;700&family=Karla:wght@400;500;700&display=swap');
-  :root{--paper:#f4f0e6;--ink:#20303d;--line:#c9c0ab;--blue:#2f5d8a;--coral:#c85a3a;--green:#3f7a53;--gold:#d9a441;}
-  *{box-sizing:border-box;}body{background:#paper;background-color:var(--paper);color:var(--ink);font-family:'Karla',sans-serif;margin:0;padding:20px 16px 60px;display:flex;justify-content:center;}
-  .sheet{width:100%;max-width:600px;position:relative;padding-left:20px;}
-  h1{font-family:'Fraunces',serif;font-size:32px;margin:4px 0;}
-  .chain{font-family:'JetBrains Mono',monospace;color:var(--blue);margin-bottom:20px;}
-  .card{background:#fffdf8;border:1px solid #d9d0ba;border-radius:4px;padding:20px;box-shadow:2px 4px 0 #d9d0ba;margin-bottom:15px;}
-  .qmeta{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8272;text-transform:uppercase;margin-bottom:5px;}
-  .question{font-family:'Fraunces',serif;font-size:20px;line-height:1.3;margin-bottom:15px;}.highlight{color:var(--blue);font-weight:700;}
-  .options{display:grid;gap:10px;}.opt{text-align:left;border:1.5px solid #cfc6b0;background:#fff;padding:12px;border-radius:4px;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:10px;}
-  .opt .sym{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--blue);}
-  .opt.correct{border-color:var(--green);background:#eaf3ec;}.opt.correct::after{content:"✓";margin-left:auto;color:var(--green);font-weight:700;}
-  .opt.wrong{border-color:var(--coral);background:#faece7;}.opt.wrong::after{content:"✗";margin-left:auto;color:var(--coral);font-weight:700;}
-  .opt.dim{opacity:.4;}.feedback{margin-top:12px;font-size:14px;padding:10px;border-radius:4px;display:none;}
-  .feedback.show{display:block;}.feedback.good{background:#eaf3ec;color:#2b5a3b;}.feedback.bad{background:#faece7;color:#8a3d24;}
-  .nextbtn,.restart{margin-top:15px;display:none;font-family:'JetBrains Mono',monospace;font-weight:700;background:var(--ink);color:#fff;border:none;padding:12px 20px;border-radius:4px;cursor:pointer;}
-  .nextbtn.show,.result.show{display:block;}.restart{background:var(--coral);display:block;margin:15px auto 0;}
-  .modes{display:grid;gap:10px;}.modebtn{text-align:left;border:1.5px solid #cfc6b0;background:#fff;padding:15px;border-radius:4px;cursor:pointer;}
-  .modebtn.defi{border-color:#dcb87a;background:#fdf8ec;}.timerbar{height:4px;background:#e8e0cc;margin-bottom:15px;overflow:hidden;}
-  .timerfill{height:100%;width:100%;background:var(--gold);transition:width .1s linear;}.timerfill.low{background:var(--coral);}
-  .result{display:none;text-align:center;}.result .big{font-family:'Fraunces',serif;font-size:48px;color:var(--blue);margin:10px 0;}
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap');
+  :root { --bg: #f0f4f8; --card-bg: #ffffff; --primary: #3b82f6; --text: #1e293b; --text-light: #64748b; --green: #10b981; --red: #ef4444; --orange: #f59e0b; }
+  * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { background-color: var(--bg); color: var(--text); margin: 0; padding: 16px; display: flex; justify-content: center; min-height: 100vh; align-items: center; }
+  .app-container { width: 100%; max-width: 500px; }
+  header { text-align: center; margin-bottom: 24px; }
+  h1 { font-family: 'Fredoka', sans-serif; font-size: 32px; color: var(--primary); margin: 0 0 8px 0; font-weight: 700; }
+  .chain { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 18px; color: var(--text-light); letter-spacing: 2px; }
+  .card { background: var(--card-bg); border-radius: 20px; padding: 24px; box-shadow: 0 10px 25px rgba(30, 41, 59, 0.05); border: 1px solid rgba(226, 232, 240, 0.8); margin-bottom: 20px; position: relative; overflow: hidden; }
+  .progress-container { width: 100%; height: 8px; background: #e2e8f0; border-radius: 99px; margin-bottom: 20px; overflow: hidden; }
+  .progress-bar { height: 100%; width: 0%; background: var(--primary); border-radius: 99px; }
+  .qmeta { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); display: flex; justify-content: space-between; margin-bottom: 12px; }
+  .question { font-size: 22px; font-weight: 600; line-height: 1.4; margin-bottom: 24px; }
+  .highlight { background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 2px 8px; border-radius: 8px; font-weight: 800; display: inline-block; }
+  .options { display: grid; gap: 12px; }
+  .opt { text-align: left; border: 2px solid #e2e8f0; background: #fff; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+  .opt:active:not(.locked) { transform: scale(0.97); }
+  .opt .sym { font-family: 'Fredoka', sans-serif; font-size: 20px; font-weight: 700; color: var(--primary); background: #f0fdf4; background: rgba(59, 130, 246, 0.08); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; margin-right: 12px; }
+  .opt-left { display: flex; align-items: center; }
+  .opt.correct { border-color: var(--green); background: #f0fdf4; color: #15803d; }
+  .opt.correct .sym { background: #dcfce7; color: var(--green); }
+  .opt.wrong { border-color: var(--red); background: #fef2f2; color: #b91c1c; }
+  .opt.wrong .sym { background: #fee2e2; color: var(--red); }
+  .opt.dim { opacity: 0.4; transform: scale(0.98); }
+  .feedback { margin-top: 16px; font-size: 15px; padding: 14px; border-radius: 12px; display: none; font-weight: 500; line-height: 1.4; animation: slideUp 0.3s ease; }
+  .feedback.show { display: block; }
+  .feedback.good { background: #eaf3ec; color: #2b5a3b; border-left: 5px solid var(--green); }
+  .feedback.bad { background: #faece7; color: #8a3d24; border-left: 5px solid var(--red); }
+  .nextbtn, .restart { width: 100%; margin-top: 20px; display: none; font-size: 16px; font-weight: 700; background: var(--text); color: #fff; border: none; padding: 16px; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nextbtn.show { display: block; animation: bounce 0.4s ease; }
+  .modes { display: grid; gap: 14px; }
+  .modebtn { text-align: left; border: 2px solid #e2e8f0; background: #fff; padding: 18px; border-radius: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+  .modebtn:active { transform: scale(0.97); }
+  .modebtn strong { font-size: 18px; color: var(--text); display: block; margin-bottom: 4px; }
+  .modebtn small { color: var(--text-light); font-size: 13px; }
+  .modebtn.defi { border-color: rgba(245, 158, 11, 0.3); background: #fffbeb; }
+  .modebtn.defi strong { color: #b45309; }
+  .timerbar { height: 6px; background: #e2e8f0; width: 100%; position: absolute; top: 0; left: 0; }
+  .timerfill { height: 100%; width: 100%; background: var(--orange); }
+  .timerfill.low { background: var(--red); }
+  .result { display: none; text-align: center; }
+  .result.show { display: block; }
+  .result .big { font-family: 'Fredoka', sans-serif; font-size: 64px; color: var(--primary); font-weight: 700; margin: 12px 0; }
+  .restart { background: var(--primary); display: block; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 </style>
 </head>
 <body>
-<div class="sheet">
+<div class="app-container">
   <header>
-    <h1>La chasse aux ensembles</h1>
+    <h1>Chasse aux Ensembles</h1>
     <div class="chain">ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</div>
   </header>
   <main>
     <div class="card" id="startCard">
-      <div class="qmeta">Mode de jeu</div>
+      <div class="question" style="text-align:center; margin-bottom:20px;">Prêt à relever le défi ? 🚀</div>
       <div class="modes">
-        <button class="modebtn" id="modeTrain"><strong>Entraînement</strong><br><small>12 questions, sans stress, à ton rythme.</small></button>
-        <button class="modebtn defi" id="modeChallenge"><strong>🔥 Défi Chrono</strong><br><small>10 questions intenses, 15 secondes par question !</small></button>
+        <button class="modebtn" id="modeTrain"><strong>🎯 Mode Entraînement</strong><small>12 questions à ton rythme pour t'échauffer et comprendre.</small></button>
+        <button class="modebtn defi" id="modeChallenge"><strong>🔥 Mode Défi Chrono</strong><small>10 questions intenses, 15 secondes par réponse. Ça va chauffer !</small></button>
       </div>
     </div>
     <div class="card" id="quizCard" style="display:none;">
       <div class="timerbar" id="timerWrap" style="display:none;"><div class="timerfill" id="timerFill"></div></div>
-      <div class="qmeta" id="qmeta">Question</div>
+      <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="qmeta"><span id="qmetaText">Question 1/12</span><span id="scoreMeta">Score: 0</span></div>
       <div class="question" id="qText"></div>
       <div class="options" id="optsWrap"></div>
       <div class="feedback" id="fb"></div>
-      <button class="nextbtn" id="nextBtn">Suivant →</button>
+      <button class="nextbtn" id="nextBtn">Continuer ➔</button>
     </div>
     <div class="card result" id="resultCard">
-      <div class="qmeta">Fin de la partie</div>
+      <div class="question" style="margin-bottom:0;">🏆 Score Final</div>
       <div class="big" id="finalScore">0 / 0</div>
-      <p id="finalMsg"></p>
-      <button class="restart" id="restartBtn">Rejouer</button>
+      <p id="finalMsg" style="font-size:16px; color:var(--text-light); padding:0 10px; line-height:1.5;"></p>
+      <button class="restart" id="restartBtn">Rejouer une partie</button>
     </div>
   </main>
 </div>
 <script>
 const NAMES={"ℕ":"entiers naturels","ℤ":"entiers relatifs","𝔻":"décimaux","ℚ":"rationnels","ℝ":"réels"};
 const Q_TRAIN=[
-  {q:"Plus petit ensemble pour <span class='highlight'>−15/3</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻","ℚ"],e:"−15/3 = −5 (entier négatif)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>7/20</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ","ℝ"],e:"7/20 = 0,35 (écriture finie)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>√16</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℚ"],e:"√16 = 4 (entier positif)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>1/3</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"1/3 = 0,333... (infini périodique)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>√2</span> ?",c:"ℝ",o:["ℚ","ℝ","𝔻"],e:"√2 est irrationnel (décimales infinies sans logique)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>−0,2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"−0,2 a un nombre fini de décimales."},
-  {q:"Vrai ou Faux : <span class='highlight'>Tout décimal est un rationnel</span>.",c:"Vrai",o:["Vrai","Faux"],e:"Oui, car 𝔻 est inclus dans ℚ."},
-  {q:"Plus petit ensemble pour <span class='highlight'>7/11</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"7/11 = 0,6363... (infini périodique)."},
-  {q:"Vrai ou Faux : <span class='highlight'>π appartient à ℚ</span>.",c:"Faux",o:["Vrai","Faux"],e:"Faux, π est irrationnel, il n'est que dans ℝ."},
-  {q:"Plus petit ensemble pour <span class='highlight'>−5</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻"],e:"−5 est un entier négatif."},
-  {q:"Vrai ou Faux : <span class='highlight'>−10/2 appartient à ℕ</span>.",c:"Faux",o:["Vrai","Faux"],e:"−10/2 = −5 (négatif, donc pas dans ℕ)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>3/4</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"3/4 = 0,75 (fini)."}
+  {q:"Plus petit ensemble pour <span class='highlight'>−15/3</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻","ℚ"],e:"🧠 −15/3 = −5 (c'est un entier négatif)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>7/20</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ","ℝ"],e:"🧠 7/20 = 0,35 (le nombre de décimales est fini)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>√16</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℚ"],e:"🧠 √16 = 4 (c'est un entier positif !)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>1/3</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"🧠 1/3 = 0,333... (écriture infinie périodique)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>√2</span> ?",c:"ℝ",o:["ℚ","ℝ","𝔻"],e:"🧠 √2 a une infinité de décimales sans logique : il est irrationnel."},
+  {q:"Plus petit ensemble pour <span class='highlight'>−0,2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"🧠 −0,2 a une seule décimale, il est donc décimal."},
+  {q:"Vrai ou Faux : <span class='highlight'>Tout décimal est un rationnel</span>.",c:"Vrai",o:["Vrai","Faux"],e:"🧠 Vrai ! L'ensemble 𝔻 est entièrement inclus dans ℚ."},
+  {q:"Plus petit ensemble pour <span class='highlight'>7/11</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"🧠 7/11 = 0,6363... (le motif se répète à l'infini)."},
+  {q:"Vrai ou Faux : <span class='highlight'>π appartient à ℚ</span>.",c:"Faux",o:["Vrai","Faux"],e:"🧠 Faux, π est le roi des irrationnels, il n'est que dans ℝ."},
+  {q:"Plus petit ensemble pour <span class='highlight'>−5</span> ?",c:"ℤ",o:["ℕ","ℤ","𝔻"],e:"🧠 −5 est un entier négatif, donc dans ℤ."},
+  {q:"Vrai ou Faux : <span class='highlight'>−10/2 appartient à ℕ</span>.",c:"Faux",o:["Vrai","Faux"],e:"🧠 −10/2 = −5. C'est négatif, donc exclu de ℕ."},
+  {q:"Plus petit ensemble pour <span class='highlight'>3/4</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"🧠 3/4 = 0,75, l'écriture s'arrête → décimal."}
 ];
 const Q_DEFI=[
-  {q:"Plus petit ensemble pour <span class='highlight'>√2 × √8</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℝ"],e:"√2 × √8 = √16 = 4 !"},
-  {q:"Plus petit ensemble pour <span class='highlight'>−3 + 7/2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"−3 + 3,5 = 0,5."},
-  {q:"Vrai ou Faux : <span class='highlight'>π − π appartient à ℕ</span>.",c:"Vrai",o:["Vrai","Faux"],e:"π − π = 0, et 0 est dans ℕ."},
-  {q:"Plus petit ensemble pour <span class='highlight'>1/6 + 1/3</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"1/6 + 2/6 = 3/6 = 0,5."},
-  {q:"Plus petit ensemble pour <span class='highlight'>√(9/4)</span> ?",c:"𝔻",o:["ℕ","ℤ","𝔻","ℚ"],e:"√(9/4) = 3/2 = 1,5."},
-  {q:"Plus petit ensemble pour <span class='highlight'>22/7</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"22/7 donne des décimales infinies périodiques."},
-  {q:"La somme de deux irrationnels est toujours irrationnelle ?",c:"Faux",o:["Vrai","Faux"],e:"√2 + (−√2) = 0 (rationnel)."},
-  {q:"Plus petit ensemble pour <span class='highlight'>(√5)² − 4</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻"],e:"5 − 4 = 1."},
-  {q:"Plus petit ensemble pour <span class='highlight'>−7/4 × 2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"−14/4 = −3,5."},
-  {q:"Vrai ou Faux : <span class='highlight'>√3 + √3 appartient à ℚ</span>.",c:"Faux",o:["Vrai","Faux"],e:"√3 + √3 = 2√3 (irrationnel)."}
+  {q:"Plus petit ensemble pour <span class='highlight'>√2 × √8</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻","ℝ"],e:"⚡ Bien joué ! √2 × √8 = √16 = 4 !"},
+  {q:"Plus petit ensemble pour <span class='highlight'>−3 + 7/2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"⚡ −3 + 3,5 = 0,5 (un nombre décimal)."},
+  {q:"Vrai ou Faux : <span class='highlight'>π − π appartient à ℕ</span>.",c:"Vrai",o:["Vrai","Faux"],e:"⚡ π − π = 0. Et zéro est un entier naturel !"},
+  {q:"Plus petit ensemble pour <span class='highlight'>1/6 + 1/3</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"⚡ 1/6 + 2/6 = 3/6 = 0,5 (décimal)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>√(9/4)</span> ?",c:"𝔻",o:["ℕ","ℤ","𝔻","ℚ"],e:"⚡ √(9/4) = 3/2 = 1,5."},
+  {q:"Plus petit ensemble pour <span class='highlight'>22/7</span> ?",c:"ℚ",o:["𝔻","ℚ","ℝ"],e:"⚡ Ce n'est qu'une approximation de π, c'est une fraction donc ℚ !"},
+  {q:"La somme de deux irrationnels est toujours irrationnelle ?",c:"Faux",o:["Vrai","Faux"],e:"⚡ Faux ! Exemple : √2 + (−√2) = 0 (rationnel)."},
+  {q:"Plus petit ensemble pour <span class='highlight'>(√5)² − 4</span> ?",c:"ℕ",o:["ℕ","ℤ","𝔻"],e:"⚡ (√5)² = 5. Et 5 − 4 = 1."},
+  {q:"Plus petit ensemble pour <span class='highlight'>−7/4 × 2</span> ?",c:"𝔻",o:["ℤ","𝔻","ℚ"],e:"⚡ −14/4 = −3,5 (décimal)."},
+  {q:"Vrai ou Faux : <span class='highlight'>√3 + √3 appartient à ℚ</span>.",c:"Faux",o:["Vrai","Faux"],e:"⚡ √3 + √3 = 2√3 (reste irrationnel, donc ℝ)."}
 ];
 let mode='train',ACTIVE=Q_TRAIN,current=0,score=0,answered=false,timer=null,timeLeft=15;
 const sCard=document.getElementById('startCard'),qCard=document.getElementById('quizCard'),rCard=document.getElementById('resultCard');
-document.getElementById('modeTrain').addEventListener('click',()=>start( 'train'));
+document.getElementById('modeTrain').addEventListener('click',()=>start('train'));
 document.getElementById('modeChallenge').addEventListener('click',()=>start('challenge'));
 function start(m){
   mode=m;ACTIVE=mode==='challenge'?Q_DEFI:Q_TRAIN;
-  current=0;score=0;sCard.style.display='none';rCard.style.display='none';qCard.style.display='block';
+  current=0;score=0;sCard.style.display='none';rCard.classList.remove('show');qCard.style.display='block';
   document.getElementById('timerWrap').style.display=mode==='challenge'?'block':'none';
   showQ();
 }
 function showQ(){
   answered=false;clearInterval(timer);
   const item=ACTIVE[current];
-  document.getElementById('qmeta').textContent=`Question ${current+1} / ${ACTIVE.length} | Score: ${score}`;
+  document.getElementById('qmetaText').textContent=`Question ${current+1} / ${ACTIVE.length}`;
+  document.getElementById('scoreMeta').textContent=`Score: ${score}`;
+  document.getElementById('progressBar').style.width=`${(current / ACTIVE.length) * 100}%`;
   document.getElementById('qText').innerHTML=item.q;
   document.getElementById('fb').className='feedback';
   document.getElementById('nextBtn').classList.remove('show');
   const w=document.getElementById('optsWrap');w.innerHTML='';
   [...item.o].sort(()=>Math.random()-0.5).forEach(o=>{
     const b=document.createElement('button');b.className='opt';
-    b.innerHTML=NAMES[o]?`<span class="sym">${o}</span> <small>${NAMES[o]}</small>`:`<span>${o}</span>`;
+    b.innerHTML=NAMES[o]?`<div class="opt-left"><div class="sym">${o}</div><span>${NAMES[o]}</span></div>`:`<div class="opt-left"><span>${o}</span></div>`;
+    b.innerHTML+=`<span class="indicator"></span>`;
     b.addEventListener('click',()=>clickOpt(b,o,item));w.appendChild(b);
   });
   if(mode==='challenge') launchTimer(item);
@@ -122,8 +151,8 @@ function launchTimer(item){
 function endTimer(item){
   answered=true;
   document.querySelectorAll('.opt').forEach(b=>{
-    b.classList.add('dim');
-    if(b.textContent.includes(item.c)) b.className='opt correct';
+    b.classList.add('dim');b.style.pointerEvents='none';
+    if(b.textContent.includes(item.c) || b.querySelector('.sym')?.textContent===item.c) { b.className='opt correct'; b.querySelector('.indicator').textContent='✓'; }
   });
   document.getElementById('fb').className='feedback show bad';
   document.getElementById('fb').textContent='⏱ Temps écoulé ! '+item.e;
@@ -132,18 +161,30 @@ function endTimer(item){
 function clickOpt(btn,o,item){
   if(answered)return;answered=true;clearInterval(timer);
   const ok=o===item.c;
-  document.querySelectorAll('.opt').forEach(b=>b.classList.add('dim'));
-  if(ok){btn.className='opt correct';score++;document.getElementById('fb').className='feedback show good';document.getElementById('fb').textContent='✓ Correct ! '+item.e;}
-  else{
-    btn.className='opt wrong';
-    document.querySelectorAll('.opt').forEach(b=>{if(b.textContent.includes(item.c)) b.className='opt correct';});
-    document.getElementById('fb').className='feedback show bad';document.getElementById('fb').textContent='✗ Faux. '+item.e;
+  document.querySelectorAll('.opt').forEach(b=>{b.classList.add('dim'); b.style.pointerEvents='none';});
+  if(ok){
+    btn.className='opt correct';btn.querySelector('.indicator').textContent='✓';score++;
+    document.getElementById('fb').className='feedback show good';document.getElementById('fb').innerHTML=item.e;
+  }else{
+    btn.className='opt wrong';btn.querySelector('.indicator').textContent='✗';
+    document.querySelectorAll('.opt').forEach(b=>{
+      if(b.textContent.includes(item.c) || b.querySelector('.sym')?.textContent===item.c) { b.className='opt correct'; b.classList.remove('dim'); b.querySelector('.indicator').textContent='✓'; }
+    });
+    document.getElementById('fb').className='feedback show bad';document.getElementById('fb').innerHTML=item.e;
   }
   document.getElementById('nextBtn').classList.add('show');
 }
 document.getElementById('nextBtn').addEventListener('click',()=>{
-  current++;if(current>=ACTIVE.length){qCard.style.display='none';rCard.classList.add('show');document.getElementById('finalScore').textContent=`${score} / ${ACTIVE.length}`;document.getElementById('finalMsg').textContent=score===ACTIVE.length?'Parfait ! Tu maîtrises les ensembles.':'Bien tenté ! Recommence pour t\'améliorer.';}
-  else showQ();
+  current++;
+  if(current>=ACTIVE.length){
+    qCard.style.display='none';rCard.classList.add('show');
+    document.getElementById('finalScore').textContent=`${score} / ${ACTIVE.length}`;
+    let msg = "";
+    if(score === ACTIVE.length) msg = "👑 Incroyable ! Un sans-faute parfait. Tu as dompté tous les ensembles de nombres !";
+    else if(score >= ACTIVE.length * 0.7) msg = "⭐ Très solide ! Tu as d'excellents réflexes. Encore un petit effort pour le score parfait !";
+    else msg = "📚 Pas mal ! Quelques pièges ont fonctionné. Prends le temps de relire les explications et réessaye !";
+    document.getElementById('finalMsg').textContent=msg;
+  } else showQ();
 });
 document.getElementById('restartBtn').addEventListener('click',()=>{rCard.classList.remove('show');sCard.style.display='block';});
 </script>
