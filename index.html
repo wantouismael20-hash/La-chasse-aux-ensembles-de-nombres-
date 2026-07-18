@@ -8,7 +8,7 @@
   @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap');
   :root { --bg: #f0f4f8; --card-bg: #ffffff; --primary: #3b82f6; --text: #1e293b; --text-light: #64748b; --green: #10b981; --red: #ef4444; --orange: #f59e0b; }
   * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
-  body { background-color: var(--bg); color: var(--text); margin: 0; padding: 16px; display: flex; justify-content: center; min-height: 100vh; align-items: center; }
+  body { background-color: var(--bg); color: var(--text); margin: 0; padding: 16px; display: flex; flex-direction: column; justify-content: center; min-height: 100vh; align-items: center; }
   .app-container { width: 100%; max-width: 500px; }
   header { text-align: center; margin-bottom: 24px; }
   h1 { font-family: 'Fredoka', sans-serif; font-size: 32px; color: var(--primary); margin: 0 0 8px 0; font-weight: 700; }
@@ -22,7 +22,7 @@
   .options { display: grid; gap: 12px; }
   .opt { text-align: left; border: 2px solid #e2e8f0; background: #fff; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
   .opt:active:not(.locked) { transform: scale(0.97); }
-  .opt .sym { font-family: 'Fredoka', sans-serif; font-size: 20px; font-weight: 700; color: var(--primary); background: #f0fdf4; background: rgba(59, 130, 246, 0.08); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; margin-right: 12px; }
+  .opt .sym { font-family: 'Fredoka', sans-serif; font-size: 20px; font-weight: 700; color: var(--primary); background: rgba(59, 130, 246, 0.08); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; margin-right: 12px; }
   .opt-left { display: flex; align-items: center; }
   .opt.correct { border-color: var(--green); background: #f0fdf4; color: #15803d; }
   .opt.correct .sym { background: #dcfce7; color: var(--green); }
@@ -49,6 +49,7 @@
   .result.show { display: block; }
   .result .big { font-family: 'Fredoka', sans-serif; font-size: 64px; color: var(--primary); font-weight: 700; margin: 12px 0; }
   .restart { background: var(--primary); display: block; }
+  .footer { text-align: center; font-size: 13px; color: var(--text-light); font-weight: 600; margin-top: 10px; letter-spacing: 0.5px; }
   @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 </style>
@@ -83,6 +84,7 @@
       <button class="restart" id="restartBtn">Rejouer une partie</button>
     </div>
   </main>
+  <div class="footer">Fait avec de l'aide par Wantou Ismaël 🚀</div>
 </div>
 <script>
 const NAMES={"ℕ":"entiers naturels","ℤ":"entiers relatifs","𝔻":"décimaux","ℚ":"rationnels","ℝ":"réels"};
